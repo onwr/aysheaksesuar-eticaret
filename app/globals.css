@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #27231F;
+
+  /* AYŞE COŞKUN — premium takı & aksesuar renk sistemi */
+  --brand-navy: #27231F;        /* koyu metin (header, başlıklar) */
+  --brand-navy-dark: #1E1A16;   /* en koyu ton (footer, bülten zemini) */
+  --brand-teal: #B99754;        /* şampanya altını (birincil vurgu) */
+  --brand-blue: #D9BF89;        /* açık altın (ikincil vurgu — pembe yerine) */
+  --brand-blue-light: #F6F1E6;  /* açık ivory zemin (pembe yerine) */
+  --brand-page-bg: #FBF8F2;     /* soft ivory sayfa arka planı */
+  --brand-card: #FFFFFF;
+  --brand-text: #27231F;
+  --brand-muted: #756E65;       /* ikincil metin */
+  --brand-border: #E9E1D4;      /* açık border */
+  --brand-success: #16A36A;
+  --brand-danger: #F04438;
+
+  /* AYŞE COŞKUN özel token'lar */
+  --brand-blush: #EDE0C8;
+  --brand-blush-soft: #F6F1E6;
+  --brand-gold: #B99754;
+  --brand-gold-soft: #D9BF89;
+  --brand-gold-hover: #9E7B3E;
+  --brand-surface: #FBF8F2;
+
+  /* Gradient: koyu metin → sıcak bej → şampanya altını */
+  --brand-gradient: linear-gradient(135deg, #27231F 0%, #3A3128 55%, #B99754 100%);
+
+  /* Geriye dönük token eşlemeleri */
+  --brand-primary: var(--brand-gold);
+  --brand-primary-dark: var(--brand-navy);
+  --brand-navy-legacy: var(--brand-navy-dark);
+  --brand-accent: var(--brand-blush);
+  --brand-white: var(--brand-card);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand: var(--brand-gold);
+  --color-brand-dark: var(--brand-navy);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-dark: var(--brand-navy-dark);
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-light: var(--brand-blue-light);
+  --color-brand-page: var(--brand-page-bg);
+  --color-brand-card: var(--brand-card);
+  --color-brand-text: var(--brand-text);
+  --color-brand-muted: var(--brand-muted);
+  --color-brand-border: var(--brand-border);
+  --color-brand-success: var(--brand-success);
+  --color-brand-danger: var(--brand-danger);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-blush: var(--brand-blush);
+  --color-brand-blush-soft: var(--brand-blush-soft);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-gold-soft: var(--brand-gold-soft);
+  --color-brand-gold-hover: var(--brand-gold-hover);
+  --font-display: var(--font-playfair);
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-dm-sans);
+}
+
+body {
+  background: var(--brand-page-bg);
+  color: var(--brand-text);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+/* Display başlıklar için zarif serif font */
+h1,
+h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--brand-page-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--brand-border);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-gold);
+}
+
+/* Focus ring — erişilebilirlik */
+:focus-visible {
+  outline: 2px solid var(--brand-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
