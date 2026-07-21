@@ -254,9 +254,9 @@ export function MobileNewProductWizard({
               )}
               <div className="text-center">
                 <p className="text-[14px] font-bold text-[#38BDF8]">
-                  {isUploading ? "Yükleniyor..." : "Fotoğraf Seç veya Çek"}
+                  {isUploading ? "Yükleniyor..." : "Galeriden veya Dosyadan Seç"}
                 </p>
-                <p className="mt-1 text-[11px] text-zinc-400">PNG, JPG, WEBP</p>
+                <p className="mt-1 text-[11px] text-zinc-400">PNG, JPG, WEBP — birden fazla seçebilirsiniz</p>
               </div>
             </button>
             <input
@@ -264,7 +264,6 @@ export function MobileNewProductWizard({
               type="file"
               accept="image/*"
               multiple
-              capture="environment"
               className="hidden"
               onChange={(e) => {
                 onPickImages(e.target.files)
