@@ -109,7 +109,7 @@ function Toggle({
          <button
             type="button"
             onClick={() => onChange(!checked)}
-            className={`relative h-6 w-10 shrink-0 rounded-full transition-all duration-300
+            className={`relative h-7 w-11 shrink-0 rounded-full transition-all duration-300 touch-manipulation
           ${checked ? "bg-[#38BDF8] shadow-[0_0_10px_rgba(79,111,82,0.3)]" : "bg-zinc-200"}`}
          >
             <span
@@ -145,7 +145,7 @@ function EditorToolbar({ editor }: { editor: ReturnType<typeof useEditor> }) {
          title={title}
          onMouseDown={(e) => e.preventDefault()}
          onClick={onClick}
-         className={`flex h-8 w-8 items-center justify-center rounded-lg text-[13px] transition-all duration-200
+         className={`flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-lg text-[13px] transition-all duration-200 touch-manipulation
         ${active
                ? "bg-[#38BDF8] text-white shadow-sm scale-105"
                : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800"}`}
@@ -292,12 +292,12 @@ function RichEditor({
 
          <EditorContent editor={editor} className="tiptap" />
 
-         <div className="flex items-center justify-between border-t border-zinc-100 bg-zinc-50/50 px-4 py-2">
-            <div className="flex items-center gap-2">
+         <div className="flex flex-col gap-2 border-t border-zinc-100 bg-zinc-50/50 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+            <div className="hidden items-center gap-2 sm:flex">
                <div className={`h-2 w-2 rounded-full ${charCount > 100 ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`} />
                <span className="text-[11px] text-zinc-400 font-medium">Tip: Detaylı açıklamalar SEO için daha iyidir.</span>
             </div>
-            <span className="text-[11px] font-mono text-zinc-400 bg-white px-2 py-0.5 rounded border border-zinc-200 shadow-sm">{charCount} Karakter</span>
+            <span className="self-end text-[11px] font-mono text-zinc-400 bg-white px-2 py-0.5 rounded border border-zinc-200 shadow-sm sm:self-auto">{charCount} Karakter</span>
          </div>
       </div>
    )
@@ -327,8 +327,8 @@ function ImageRow({
          initial={{ opacity: 0, scale: 0.95 }}
          animate={{ opacity: 1, scale: 1 }}
          exit={{ opacity: 0, scale: 0.95 }}
-         className="group relative flex items-center gap-3 rounded-xl border border-zinc-100 bg-zinc-50/80 p-3
-                 transition-all hover:bg-white hover:shadow-md hover:border-[#38BDF8]/20"
+         className="group relative flex flex-col gap-3 rounded-xl border border-zinc-100 bg-zinc-50/80 p-3
+                 transition-all hover:bg-white hover:shadow-md hover:border-[#38BDF8]/20 sm:flex-row sm:items-center"
       >
          <div className="cursor-grab active:cursor-grabbing p-1 text-zinc-300 hover:text-zinc-500 transition-colors">
             <FaGripVertical className="h-3.5 w-3.5" />
@@ -343,7 +343,7 @@ function ImageRow({
             )}
          </div>
 
-         <div className="flex-1 overflow-hidden">
+         <div className="w-full flex-1 overflow-hidden sm:w-auto">
             <p className="truncate text-[11.5px] font-mono text-zinc-500">{url}</p>
             <div className="mt-1 flex items-center gap-2">
                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${isFirst ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-200 text-zinc-500'}`}>
@@ -353,7 +353,7 @@ function ImageRow({
             </div>
          </div>
 
-         <div className="flex items-center gap-1.5 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 translate-x-2">
+         <div className="flex w-full items-center justify-end gap-1.5 opacity-100 transition-all duration-300 sm:w-auto sm:opacity-0 sm:group-hover:opacity-100 sm:group-hover:translate-x-0 sm:translate-x-2">
             <div className="flex flex-col gap-1">
                <button
                   type="button"
@@ -404,18 +404,18 @@ function Tooltip({ text, children }: { text: string; children: React.ReactNode }
 
 function SectionHeader({ icon, title, action, subtitle }: { icon: React.ReactNode; title: string; action?: React.ReactNode; subtitle?: string }) {
    return (
-      <div className="mb-6 flex flex-col gap-1 border-b border-zinc-100 pb-4">
-         <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#38BDF8]/5 text-[#38BDF8] shadow-sm ring-1 ring-[#38BDF8]/10">
+      <div className="mb-6 flex flex-col gap-4 border-b border-zinc-100 pb-4 sm:gap-1">
+         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-3 min-w-0">
+               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#38BDF8]/5 text-[#38BDF8] shadow-sm ring-1 ring-[#38BDF8]/10">
                   {icon}
                </div>
-               <div>
+               <div className="min-w-0">
                   <h2 className="text-[15px] font-bold text-zinc-800 tracking-tight">{title}</h2>
                   {subtitle && <p className="text-[11.5px] text-zinc-400 mt-0.5">{subtitle}</p>}
                </div>
             </div>
-            {action}
+            {action && <div className="w-full shrink-0 sm:w-auto">{action}</div>}
          </div>
       </div>
    )
@@ -437,7 +437,7 @@ function Field({
 }) {
    return (
       <div className="group/field">
-         <div className="mb-2 flex items-center justify-between">
+         <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-1.5">
                <label className="text-[12.5px] font-semibold text-zinc-600 group-focus-within/field:text-[#38BDF8] transition-colors">
                   {label}
@@ -449,7 +449,7 @@ function Field({
                   </Tooltip>
                )}
             </div>
-            {hint && <span className="text-[10.5px] font-medium text-zinc-400 italic">{hint}</span>}
+            {hint && <span className="text-[10.5px] font-medium text-zinc-400 italic sm:text-right">{hint}</span>}
          </div>
          {children}
       </div>
@@ -840,7 +840,7 @@ export default function NewProduct() {
    }, [form.basePrice, form.compareAtPrice, hasDiscount])
 
    return (
-      <div className="mx-auto max-w-7xl pb-24 px-4 sm:px-6">
+      <div className="mx-auto max-w-7xl pb-28 px-3 sm:px-4 lg:px-6 sm:pb-24">
 
          {/* ── TOAST ──────────────────────────────────────────────────────── */}
          <AnimatePresence>
@@ -849,7 +849,7 @@ export default function NewProduct() {
                   initial={{ opacity: 0, y: -20, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -20, scale: 0.9 }}
-                  className={`fixed right-6 top-8 z-100 flex items-center gap-3 rounded-2xl px-6 py-4 shadow-2xl backdrop-blur-md border-l-4
+                  className={`fixed left-3 right-3 top-4 z-100 flex items-center gap-3 rounded-2xl px-4 py-4 shadow-2xl backdrop-blur-md border-l-4 sm:left-auto sm:right-6 sm:top-8 sm:w-auto sm:max-w-md sm:px-6
               ${toast.ok
                         ? "border-emerald-500 bg-emerald-50/95 text-emerald-800"
                         : "border-red-500 bg-red-50/95 text-red-800"}`}
@@ -870,7 +870,7 @@ export default function NewProduct() {
          </AnimatePresence>
 
          {/* ── BREADCRUMB ─────────────────────────────────────────────────── */}
-         <nav className="mb-8 flex items-center gap-2 text-[11.5px] font-medium text-zinc-400">
+         <nav className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11.5px] font-medium text-zinc-400 sm:mb-8">
             <Link href="/admin" className="hover:text-zinc-600 transition-colors">Dashboard</Link>
             <FaArrowRight className="h-2 w-2 opacity-50" />
             <Link href="/admin/products" className="hover:text-zinc-600 transition-colors">Ürün Yönetimi</Link>
@@ -879,31 +879,31 @@ export default function NewProduct() {
          </nav>
 
          {/* ── HEADER ─────────────────────────────────────────────────────── */}
-         <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-5">
+         <div className="mb-8 flex flex-col gap-5 sm:mb-10 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-start gap-3 sm:items-center sm:gap-5">
                <Link
                   href="/admin/products"
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200
-                       bg-white text-zinc-400 shadow-sm transition-all hover:text-zinc-700 hover:shadow-md active:scale-95"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-zinc-200
+                       bg-white text-zinc-400 shadow-sm transition-all hover:text-zinc-700 hover:shadow-md active:scale-95 sm:h-12 sm:w-12"
                >
                   <FaChevronLeft className="h-4 w-4" />
                </Link>
-               <div>
-                  <h1 className="text-2xl font-black text-zinc-900 tracking-tight">Ürün Kataloğu Oluştur</h1>
-                  <div className="mt-1 flex items-center gap-3">
-                     <p className="text-[13px] text-zinc-400 font-medium">Mağazanız için en ince ayrıntılarıyla yeni bir vitrin ürünü tanımlayın.</p>
-                     <span className="h-1 w-1 rounded-full bg-zinc-300" />
+               <div className="min-w-0">
+                  <h1 className="text-xl font-black text-zinc-900 tracking-tight sm:text-2xl">Ürün Kataloğu Oluştur</h1>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 sm:gap-3">
+                     <p className="text-[12px] text-zinc-400 font-medium sm:text-[13px]">Mağazanız için yeni bir vitrin ürünü tanımlayın.</p>
+                     <span className="hidden h-1 w-1 rounded-full bg-zinc-300 sm:block" />
                      <span className="text-[11px] font-bold text-[#38BDF8] uppercase tracking-wider bg-[#38BDF8]/10 px-2 py-0.5 rounded-md">Taslak</span>
                   </div>
                </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="hidden items-center gap-3 lg:flex">
                <button
                   type="button"
                   onClick={() => setIsPreviewOpen(true)}
                   className="flex items-center gap-2.5 rounded-xl border border-zinc-200 bg-white px-5 py-3
-                       text-[13px] font-bold text-zinc-600 shadow-sm transition-all hover:bg-zinc-50 hover:shadow-md"
+                       text-[13px] font-bold text-zinc-600 shadow-sm transition-all hover:bg-zinc-50 hover:shadow-md touch-manipulation"
                >
                   <FaEye className="h-3.5 w-3.5" /> Ön İzleme
                </button>
@@ -913,7 +913,7 @@ export default function NewProduct() {
                   disabled={loading}
                   className="flex items-center gap-3 rounded-xl bg-[#38BDF8] px-8 py-3 text-[14px]
                        font-black text-white shadow-[0_10px_20px_-5px_rgba(79,111,82,0.4)] transition-all
-                       hover:bg-[#0284C7] hover:translate-y-[-2px] active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none"
+                       hover:bg-[#0284C7] hover:translate-y-[-2px] active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none touch-manipulation"
                >
                   {loading
                      ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
@@ -924,23 +924,24 @@ export default function NewProduct() {
          </div>
 
          {/* ── SEKMELER ───────────────────────────────────────────────────── */}
-         <div className="mb-8 flex gap-2 rounded-2xl border border-zinc-200/60 bg-white p-1.5 w-fit shadow-sm ring-1 ring-zinc-100">
+         <div className="mb-6 flex w-full gap-2 overflow-x-auto rounded-2xl border border-zinc-200/60 bg-white p-1.5 shadow-sm ring-1 ring-zinc-100 sm:mb-8 sm:w-fit">
             {([
-               { key: "info", label: "Genel Ürün Bilgileri", icon: <FaInfoCircle className="h-3.5 w-3.5" /> },
-               { key: "seo", label: "Arama Motoru (SEO)", icon: <FaGlobe className="h-3.5 w-3.5" /> },
+               { key: "info", label: "Genel Ürün Bilgileri", shortLabel: "Genel", icon: <FaInfoCircle className="h-3.5 w-3.5 shrink-0" /> },
+               { key: "seo", label: "Arama Motoru (SEO)", shortLabel: "SEO", icon: <FaGlobe className="h-3.5 w-3.5 shrink-0" /> },
             ] as const).map(tab => (
                <button
                   key={tab.key}
                   type="button"
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex items-center gap-2.5 rounded-xl px-6 py-2.5 text-[13px] font-bold transition-all duration-300
+                  className={`flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-bold transition-all duration-300 touch-manipulation sm:flex-none sm:gap-2.5 sm:px-6 sm:text-[13px]
               ${activeTab === tab.key
                         ? "bg-zinc-900 text-white shadow-lg -translate-y-px"
                         : "text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50"}`}
                >
                   {tab.icon}
-                  {tab.label}
-                  {activeTab === tab.key && <motion.div layoutId="activeTab" className="h-1.5 w-1.5 rounded-full bg-[#38BDF8]" />}
+                  <span className="truncate sm:hidden">{tab.shortLabel}</span>
+                  <span className="hidden truncate sm:inline">{tab.label}</span>
+                  {activeTab === tab.key && <motion.div layoutId="activeTab" className="hidden h-1.5 w-1.5 shrink-0 rounded-full bg-[#38BDF8] sm:block" />}
                </button>
             ))}
          </div>
@@ -961,7 +962,7 @@ export default function NewProduct() {
                      <div className="space-y-8">
 
                         {/* Kimlik & İçerik */}
-                        <section className="rounded-2xl border border-zinc-100 bg-white p-8 shadow-sm ring-1 ring-zinc-100">
+                        <section className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm ring-1 ring-zinc-100 sm:p-6 lg:p-8">
                            <SectionHeader
                               icon={<FaInfoCircle className="h-5 w-5" />}
                               title="Ürün Kimliği"
@@ -984,7 +985,7 @@ export default function NewProduct() {
                                  />
                               </Field>
 
-                              <div className="grid grid-cols-2 gap-4">
+                              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                  <Field label="Kategori">
                                     <select
                                        value={form.categoryId}
@@ -1054,7 +1055,7 @@ export default function NewProduct() {
                                                    </label>
 
                                                    {children.length > 0 && (
-                                                      <div className="mt-2 grid grid-cols-2 gap-2 pl-1">
+                                                      <div className="mt-2 grid grid-cols-1 gap-2 pl-1 sm:grid-cols-2">
                                                          {children.map((ch) => {
                                                             const childId = Number(ch.id)
                                                             const childChecked = extraCategoryIds.includes(childId)
@@ -1083,7 +1084,7 @@ export default function NewProduct() {
                                  )}
                               </Field>
 
-                              <div className="grid grid-cols-2 gap-4">
+                              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                  <Field label="SKU (Stok Kodu)">
                                     <input
                                        type="text"
@@ -1094,8 +1095,8 @@ export default function NewProduct() {
                                     />
                                  </Field>
                                  <Field label="Barkod" hint="EAN, UPC veya ISBN">
-                                    <div className="relative flex gap-2">
-                                       <div className="relative flex-1">
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+                                       <div className="relative min-w-0 flex-1">
                                           <FaBarcode className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-300" />
                                           <input
                                              type="text"
@@ -1108,7 +1109,7 @@ export default function NewProduct() {
                                        <button
                                           type="button"
                                           onClick={generateBarcode}
-                                          className="h-11 px-4 rounded-xl border border-zinc-200 bg-zinc-50 text-[11px] font-bold text-zinc-500 hover:bg-zinc-100 transition-colors"
+                                          className="h-11 shrink-0 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-[11px] font-bold text-zinc-600 transition-colors hover:bg-zinc-100 touch-manipulation sm:w-auto"
                                        >
                                           OTOMATİK ÜRET
                                        </button>
@@ -1139,15 +1140,15 @@ export default function NewProduct() {
                         </section>
 
                         {/* Editör */}
-                        <section className="rounded-2xl border border-zinc-100 bg-white p-8 shadow-sm ring-1 ring-zinc-100">
+                        <section className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm ring-1 ring-zinc-100 sm:p-6 lg:p-8">
                            <SectionHeader
                               icon={<FaInfoCircle className="h-5 w-5" />}
                               title="Ürün Hikayesi & Detaylar"
                               subtitle="Zengin metin editörünü kullanarak ürününüzün özelliklerini, kullanım talimatlarını ve detaylarını anlatın."
                            />
                            <RichEditor value={description} onChange={setDescription} />
-                           <div className="mt-4 flex items-center gap-3 rounded-xl bg-amber-50 p-4 border border-amber-100">
-                              <FaStar className="h-4 w-4 text-amber-500 shrink-0" />
+                           <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-100 bg-amber-50 p-4">
+                              <FaStar className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
                               <p className="text-[12px] leading-relaxed text-amber-800">
                                  <span className="font-bold">Öneri:</span> Detaylı ve anahtar kelime zengini bir açıklama, hem müşterilerinizin güvenini artırır hem de Google sıralamanızı yükseltir.
                               </p>
@@ -1155,16 +1156,16 @@ export default function NewProduct() {
                         </section>
 
                         {/* Varyantlar */}
-                        <section className="rounded-2xl border border-zinc-100 bg-white p-8 shadow-sm ring-1 ring-zinc-100 overflow-hidden">
+                        <section className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm ring-1 ring-zinc-100 overflow-hidden sm:p-6 lg:p-8">
                            <SectionHeader
                               icon={<FaLayerGroup className="h-5 w-5" />}
                               title="Varyasyonlar & Stok Havuzu"
                               subtitle="Ürününüzün farklı beden, renk veya paket seçeneklerini buradan yönetin."
                               action={
-                                 <div className="flex flex-wrap items-center gap-2">
+                                 <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
                                     {/* Kombinasyon üretici — yalnızca varyant attribute'u olan kategorilerde */}
                                     {categoryAttributes.filter(ca => ca.isVariant).length > 0 && (
-                                       <div className="flex items-center gap-1 rounded-xl border border-dashed border-[#38BDF8]/40 bg-[#38BDF8]/5 px-3 py-1.5">
+                                       <div className="flex w-full flex-col gap-2 rounded-xl border border-dashed border-[#38BDF8]/40 bg-[#38BDF8]/5 p-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-1 sm:px-3 sm:py-1.5">
                                           {categoryAttributes.filter(ca => ca.isVariant).map(ca => (
                                              <div key={ca.attributeId} className="flex items-center gap-1">
                                                 <span className="text-[10px] font-bold text-zinc-500">{ca.attribute.name}:</span>
@@ -1248,14 +1249,14 @@ export default function NewProduct() {
                                     <button
                                        type="button"
                                        onClick={handleBulkPriceUpdate}
-                                       className="flex items-center gap-2 rounded-xl bg-zinc-100 px-4 py-2.5 text-[12px] font-bold text-zinc-600 transition-all hover:bg-zinc-200"
+                                       className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 px-4 py-2.5 text-[12px] font-bold text-zinc-600 transition-all hover:bg-zinc-200 touch-manipulation sm:w-auto"
                                     >
                                        Fiyatları Eşitle
                                     </button>
                                     <button
                                        type="button"
                                        onClick={addVariant}
-                                       className="flex items-center gap-2 rounded-xl bg-[#38BDF8] px-4 py-2.5 text-[12px] font-bold text-white transition-all hover:bg-[#0284C7] shadow-lg shadow-[#38BDF8]/20"
+                                       className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#38BDF8] px-4 py-2.5 text-[12px] font-bold text-white transition-all hover:bg-[#0284C7] shadow-lg shadow-[#38BDF8]/20 touch-manipulation sm:w-auto"
                                     >
                                        <FaPlus className="h-3 w-3" /> Yeni Seçenek
                                     </button>
@@ -1264,7 +1265,7 @@ export default function NewProduct() {
                            />
 
                            <div className="space-y-4">
-                              <div className="grid grid-cols-[1fr_1fr_120px_100px_100px_40px] gap-4 px-4 py-2 bg-zinc-50 rounded-xl">
+                              <div className="hidden gap-4 rounded-xl bg-zinc-50 px-4 py-2 lg:grid lg:grid-cols-[1fr_1fr_120px_100px_100px_40px]">
                                  <div className="flex items-center gap-1.5">
                                     <span className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">Özellik</span>
                                     <Tooltip text="Beden, Renk veya Paket gibi ürünü ayrıştıran nitelik (Örn: XL, Kırmızı).">
@@ -1306,78 +1307,101 @@ export default function NewProduct() {
                                        initial={{ opacity: 0, x: -10 }}
                                        animate={{ opacity: 1, x: 0 }}
                                        exit={{ opacity: 0, x: 10, scale: 0.95 }}
-                                       className="group relative grid grid-cols-[1fr_1fr_120px_100px_100px_40px] items-center gap-4
-                                     rounded-2xl border border-zinc-100 bg-white px-4 py-3.5
-                                     transition-all hover:shadow-xl hover:border-[#38BDF8]/20 hover:translate-x-1"
+                                       className="group relative rounded-2xl border border-zinc-100 bg-white p-4 transition-all hover:border-[#38BDF8]/20 hover:shadow-xl lg:grid lg:grid-cols-[1fr_1fr_120px_100px_100px_40px] lg:items-center lg:gap-4 lg:px-4 lg:py-3.5 lg:hover:translate-x-1"
                                     >
-                                       <div className="relative">
-                                          <input
-                                             type="text"
-                                             value={v.name}
-                                             onChange={e => setVariantField(v.id, "name", e.target.value)}
-                                             placeholder="Örn: 3-6 Ay / Kırmızı"
-                                             className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3 text-[13px] font-medium
+                                       <div className="mb-3 flex items-center justify-between lg:hidden">
+                                          <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Varyant #{i + 1}</span>
+                                          <button
+                                             type="button"
+                                             onClick={() => removeVariant(v.id)}
+                                             className="flex h-10 w-10 items-center justify-center rounded-xl text-zinc-400 transition-all hover:bg-red-50 hover:text-red-500 touch-manipulation"
+                                          >
+                                             <FaTimes className="h-3.5 w-3.5" />
+                                          </button>
+                                       </div>
+
+                                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:contents">
+                                          <div className="relative space-y-1 lg:space-y-0">
+                                             <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 lg:hidden">Özellik</label>
+                                             <input
+                                                type="text"
+                                                value={v.name}
+                                                onChange={e => setVariantField(v.id, "name", e.target.value)}
+                                                placeholder="Örn: 3-6 Ay / Kırmızı"
+                                                className="h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3 text-[13px] font-medium
                                           text-zinc-700 outline-none focus:border-[#38BDF8] focus:bg-white"
-                                          />
-                                       </div>
-                                       <input
-                                          type="text"
-                                          value={v.sku}
-                                          onChange={e => setVariantField(v.id, "sku", e.target.value)}
-                                          placeholder="Varyant SKU"
-                                          className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3 text-[12px]
+                                             />
+                                          </div>
+                                          <div className="space-y-1 lg:space-y-0">
+                                             <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 lg:hidden">Özel SKU</label>
+                                             <input
+                                                type="text"
+                                                value={v.sku}
+                                                onChange={e => setVariantField(v.id, "sku", e.target.value)}
+                                                placeholder="Varyant SKU"
+                                                className="h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3 text-[12px]
                                        text-zinc-500 outline-none focus:border-[#38BDF8] focus:bg-white"
-                                       />
-                                       <div className="relative">
-                                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-bold text-zinc-400">₺</span>
-                                          <input
-                                             type="number"
-                                             value={v.price}
-                                             onChange={e => setVariantField(v.id, "price", e.target.value)}
-                                             placeholder={form.basePrice || "0"}
-                                             className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50/50 pl-7 pr-2 text-[13px] font-bold
-                                         text-zinc-800 outline-none focus:border-[#38BDF8] focus:bg-white"
-                                          />
-                                       </div>
-                                       <div className="relative">
-                                          <input
-                                             type="number"
-                                             value={v.stock}
-                                             onChange={e => setVariantField(v.id, "stock", e.target.value)}
-                                             min={0}
-                                             className={`h-10 w-full rounded-xl border px-3 text-[13px] font-black outline-none focus:border-[#38BDF8]
-                                 ${Number(v.stock) === 0
-                                                   ? "border-red-200 bg-red-50 text-red-500"
-                                                   : Number(v.stock) <= Number(v.lowStockThreshold)
-                                                      ? "border-amber-200 bg-amber-50 text-amber-600"
-                                                      : "border-zinc-200 bg-zinc-50/50 text-zinc-800 focus:bg-white"}`}
-                                          />
-                                          {Number(v.stock) <= Number(v.lowStockThreshold) && (
-                                             <div className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-white animate-bounce shadow-sm">
-                                                <span className="text-[10px]">!</span>
+                                             />
+                                          </div>
+                                          <div className="space-y-1 lg:space-y-0">
+                                             <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 lg:hidden">Fiyat (₺)</label>
+                                             <div className="relative">
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-bold text-zinc-400">₺</span>
+                                                <input
+                                                   type="number"
+                                                   value={v.price}
+                                                   onChange={e => setVariantField(v.id, "price", e.target.value)}
+                                                   placeholder={form.basePrice || "0"}
+                                                   className="h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50/50 pl-7 pr-2 text-[13px] font-bold
+                                         text-zinc-800 outline-none focus:border-[#38BDF8] focus:bg-white lg:h-10"
+                                                />
                                              </div>
-                                          )}
+                                          </div>
+                                          <div className="relative space-y-1 lg:space-y-0">
+                                             <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 lg:hidden">Stok</label>
+                                             <div className="relative">
+                                                <input
+                                                   type="number"
+                                                   value={v.stock}
+                                                   onChange={e => setVariantField(v.id, "stock", e.target.value)}
+                                                   min={0}
+                                                   className={`h-11 w-full rounded-xl border px-3 text-[13px] font-black outline-none focus:border-[#38BDF8] lg:h-10
+                                 ${Number(v.stock) === 0
+                                                      ? "border-red-200 bg-red-50 text-red-500"
+                                                      : Number(v.stock) <= Number(v.lowStockThreshold)
+                                                         ? "border-amber-200 bg-amber-50 text-amber-600"
+                                                         : "border-zinc-200 bg-zinc-50/50 text-zinc-800 focus:bg-white"}`}
+                                                />
+                                                {Number(v.stock) <= Number(v.lowStockThreshold) && (
+                                                   <div className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-white animate-bounce shadow-sm">
+                                                      <span className="text-[10px]">!</span>
+                                                   </div>
+                                                )}
+                                             </div>
+                                          </div>
+                                          <div className="space-y-1 sm:col-span-2 lg:col-span-1 lg:space-y-0">
+                                             <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 lg:hidden">Kritik Stok</label>
+                                             <input
+                                                type="number"
+                                                value={v.lowStockThreshold}
+                                                onChange={e => setVariantField(v.id, "lowStockThreshold", e.target.value)}
+                                                min={0}
+                                                className="h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3 text-[12px] font-medium
+                                       text-zinc-500 outline-none focus:border-[#38BDF8] focus:bg-white lg:h-10"
+                                             />
+                                          </div>
+                                          <button
+                                             type="button"
+                                             onClick={() => removeVariant(v.id)}
+                                             className="hidden h-10 w-10 items-center justify-center rounded-xl text-zinc-300 transition-all hover:bg-red-50 hover:text-red-500 hover:rotate-90
+                                       lg:flex lg:opacity-0 lg:group-hover:opacity-100 touch-manipulation"
+                                          >
+                                             <FaTimes className="h-3.5 w-3.5" />
+                                          </button>
                                        </div>
-                                       <input
-                                          type="number"
-                                          value={v.lowStockThreshold}
-                                          onChange={e => setVariantField(v.id, "lowStockThreshold", e.target.value)}
-                                          min={0}
-                                          className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3 text-[12px] font-medium
-                                       text-zinc-500 outline-none focus:border-[#38BDF8] focus:bg-white"
-                                       />
-                                       <button
-                                          type="button"
-                                          onClick={() => removeVariant(v.id)}
-                                          className="flex h-10 w-10 items-center justify-center rounded-xl text-zinc-300
-                                       opacity-0 transition-all hover:bg-red-50 hover:text-red-500 hover:rotate-90
-                                       group-hover:opacity-100"
-                                       >
-                                          <FaTimes className="h-3.5 w-3.5" />
-                                       </button>
-                                       <div className="col-span-full space-y-2 border-t border-zinc-100 pt-3">
+                                       <div className="col-span-full mt-1 space-y-2 border-t border-zinc-100 pt-3 lg:mt-0">
                                           <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Varyant görseli</label>
-                                          <div className="flex flex-wrap items-center gap-3">
+                                          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                                              {v.imageUrl ? (
                                                 // eslint-disable-next-line @next/next/no-img-element
                                                 <img src={v.imageUrl} alt="" className="h-12 w-12 rounded-lg border object-cover" />
@@ -1387,7 +1411,7 @@ export default function NewProduct() {
                                                 value={v.imageUrl || ""}
                                                 onChange={(e) => setVariantField(v.id, "imageUrl", e.target.value)}
                                                 placeholder="URL veya galeriden"
-                                                className="h-10 min-w-[200px] flex-1 rounded-xl border border-zinc-200 bg-zinc-50/50 px-3 text-[12px] outline-none focus:border-[#38BDF8]"
+                                                className="h-10 min-w-0 w-full flex-1 rounded-xl border border-zinc-200 bg-zinc-50/50 px-3 text-[12px] outline-none focus:border-[#38BDF8] sm:min-w-[200px]"
                                              />
                                              {images.length > 0 ? (
                                                 <select
@@ -1395,7 +1419,7 @@ export default function NewProduct() {
                                                    onChange={(e) => {
                                                       if (e.target.value) setVariantField(v.id, "imageUrl", e.target.value)
                                                    }}
-                                                   className="h-10 rounded-xl border border-zinc-200 bg-white px-2 text-[11px]"
+                                                   className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-2 text-[11px] sm:w-auto"
                                                 >
                                                    <option value="">Galeriden seç</option>
                                                    {images.map((url, idx) => (
@@ -1436,21 +1460,21 @@ export default function NewProduct() {
                               </AnimatePresence>
                            </div>
 
-                           <div className="mt-8 flex items-center justify-between rounded-2xl bg-zinc-900 px-8 py-6 text-white shadow-2xl">
-                              <div className="flex items-center gap-6">
+                           <div className="mt-8 flex flex-col gap-4 rounded-2xl bg-zinc-900 px-4 py-5 text-white shadow-2xl sm:px-8 sm:py-6 lg:flex-row lg:items-center lg:justify-between">
+                              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
                                  <div className="flex flex-col">
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Seçenek Sayısı</span>
                                     <span className="mt-1 text-xl font-black">{variants.length}</span>
                                  </div>
-                                 <div className="h-10 w-px bg-white/10" />
+                                 <div className="hidden h-10 w-px bg-white/10 sm:block" />
                                  <div className="flex flex-col">
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Toplam Stok Adedi</span>
                                     <span className={`mt-1 text-xl font-black ${totalStock === 0 ? 'text-red-400' : 'text-emerald-400'}`}>{totalStock}</span>
                                  </div>
                               </div>
-                              <div className="flex items-center gap-3 rounded-xl bg-white/5 px-5 py-3 border border-white/10">
-                                 <FaExclamationTriangle className="h-4 w-4 text-amber-400" />
-                                 <span className="text-[12px] font-medium text-zinc-300">Stok seviyesi düştüğünde sistem otomatik bildirim gönderecektir.</span>
+                              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 sm:items-center sm:px-5">
+                                 <FaExclamationTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400 sm:mt-0" />
+                                 <span className="text-[12px] font-medium leading-relaxed text-zinc-300">Stok seviyesi düştüğünde sistem otomatik bildirim gönderecektir.</span>
                               </div>
                            </div>
                         </section>
@@ -1687,7 +1711,7 @@ export default function NewProduct() {
                         <section className="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm ring-1 ring-zinc-100">
                            <SectionHeader icon={<FaTag className="h-4 w-4" />} title="Vergi Yapılandırması" />
                            <div className="space-y-6">
-                              <div className="grid grid-cols-2 gap-4">
+                              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                  <Field label="Vergi Oranı (%)">
                                     <select
                                        value={form.taxRate}
@@ -1700,7 +1724,7 @@ export default function NewProduct() {
                                        <option value="0">%0 (Muaf)</option>
                                     </select>
                                  </Field>
-                                 <div className="flex items-center pt-6">
+                                 <div className="flex items-center sm:pt-6">
                                     <Toggle
                                        label="Vergi Dahil"
                                        checked={form.isTaxIncluded}
@@ -1745,7 +1769,7 @@ export default function NewProduct() {
                      className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]"
                   >
                      <div className="space-y-8">
-                        <section className="rounded-2xl border border-zinc-100 bg-white p-8 shadow-sm ring-1 ring-zinc-100">
+                        <section className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm ring-1 ring-zinc-100 sm:p-6 lg:p-8">
                            <SectionHeader
                               icon={<FaGlobe className="h-5 w-5" />}
                               title="Arama Motoru Optimizasyonu"
@@ -1801,17 +1825,17 @@ export default function NewProduct() {
                               </Field>
 
                               <Field label="Kalıcı Bağlantı (URL Slug)" tooltip="Ürünün tarayıcı adres çubuğundaki adı. Otomatik oluşturulur ama düzenlenebilir.">
-                                 <div className="flex items-center overflow-hidden rounded-xl border border-zinc-200 bg-white ring-offset-2 focus-within:ring-4 focus-within:ring-[#38BDF8]/5 focus-within:border-[#38BDF8] transition-all">
-                                    <div className="flex h-12 items-center bg-zinc-50 px-4 text-[13px] font-bold text-zinc-400 border-r border-zinc-200 whitespace-nowrap">
+                                 <div className="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white ring-offset-2 transition-all focus-within:border-[#38BDF8] focus-within:ring-4 focus-within:ring-[#38BDF8]/5 sm:flex-row sm:items-center">
+                                    <div className="flex h-11 items-center border-b border-zinc-200 bg-zinc-50 px-3 text-[11px] font-bold text-zinc-400 whitespace-nowrap sm:h-12 sm:border-b-0 sm:border-r sm:px-4 sm:text-[13px]">
                                        ydytrend.com/products/
                                     </div>
                                     <input
                                        type="text"
                                        value={form.slug}
                                        onChange={e => set("slug", e.target.value)}
-                                       className="h-12 flex-1 px-4 text-[13px] font-medium text-zinc-800 outline-none bg-transparent"
+                                       className="h-11 flex-1 px-3 text-[13px] font-medium text-zinc-800 outline-none bg-transparent sm:h-12 sm:px-4"
                                     />
-                                    <div className="pr-4">
+                                    <div className="hidden pr-4 sm:block">
                                        <FaLink className="h-3.5 w-3.5 text-zinc-300" />
                                     </div>
                                  </div>
@@ -1820,7 +1844,7 @@ export default function NewProduct() {
                         </section>
 
                         {/* Google simülasyonu */}
-                        <section className="rounded-2xl border border-zinc-100 bg-white p-8 shadow-sm ring-1 ring-zinc-100">
+                        <section className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm ring-1 ring-zinc-100 sm:p-6 lg:p-8">
                            <SectionHeader icon={<FaSearch className="h-4 w-4" />} title="Google Arama Önizlemesi" />
                            <div className="rounded-2xl border border-zinc-100 bg-zinc-50/50 p-6 shadow-inner">
                               <div className="flex flex-col gap-1">
@@ -1940,13 +1964,13 @@ export default function NewProduct() {
                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
                      animate={{ opacity: 1, scale: 1, y: 0 }}
                      exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                     className="relative h-full max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-[32px] bg-white shadow-2xl"
+                     className="relative h-full max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-[32px]"
                   >
                      {/* Modal Header */}
-                     <div className="absolute right-6 top-6 z-10">
+                     <div className="absolute right-3 top-3 z-10 sm:right-6 sm:top-6">
                         <button
                            onClick={() => setIsPreviewOpen(false)}
-                           className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-zinc-900 shadow-xl backdrop-blur-sm transition-transform hover:scale-110 active:scale-95"
+                           className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-zinc-900 shadow-xl backdrop-blur-sm transition-transform hover:scale-110 active:scale-95 touch-manipulation sm:h-12 sm:w-12"
                         >
                            <FaTimes className="h-5 w-5" />
                         </button>
@@ -1955,7 +1979,7 @@ export default function NewProduct() {
                      <div className="h-full overflow-y-auto custom-scrollbar">
                         <div className="grid grid-cols-1 lg:grid-cols-2">
                            {/* SOL: Görsel Galerisi Simülasyonu */}
-                           <div className="bg-zinc-50 p-8 lg:p-12">
+                           <div className="bg-zinc-50 p-4 sm:p-8 lg:p-12">
                               {images.length > 0 ? (
                                  <div className="space-y-6">
                                     <div className="aspect-square overflow-hidden rounded-3xl bg-white shadow-xl ring-1 ring-zinc-200">
@@ -1977,8 +2001,8 @@ export default function NewProduct() {
                            </div>
 
                            {/* SAĞ: Ürün Bilgileri */}
-                           <div className="p-8 lg:p-12">
-                              <div className="mb-2 flex items-center gap-2">
+                           <div className="p-4 sm:p-8 lg:p-12">
+                              <div className="mb-2 flex flex-wrap items-center gap-2">
                                  <span className="rounded-full bg-[#38BDF8]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#38BDF8]">
                                     {categories.find((c) => c.id === Number(form.categoryId))?.name || "Kategori Seçilmedi"}
                                  </span>
@@ -1988,15 +2012,15 @@ export default function NewProduct() {
                                     </span>
                                  )}
                               </div>
-                              <h2 className="text-3xl font-black text-zinc-900 leading-tight">
+                              <h2 className="text-2xl font-black text-zinc-900 leading-tight sm:text-3xl">
                                  {form.name || "Ürün Adı Henüz Girilmedi"}
                               </h2>
                               <p className="mt-4 text-[15px] leading-relaxed text-zinc-500">
                                  {form.shortDescription || "Ürün için kısa açıklama henüz girilmedi."}
                               </p>
 
-                              <div className="mt-8 flex items-baseline gap-4">
-                                 <span className="text-4xl font-black text-[#38BDF8]">
+                              <div className="mt-8 flex flex-wrap items-baseline gap-3 sm:gap-4">
+                                 <span className="text-3xl font-black text-[#38BDF8] sm:text-4xl">
                                     ₺{Number(hasDiscount ? form.compareAtPrice : form.basePrice).toLocaleString("tr-TR")}
                                  </span>
                                  {hasDiscount && (
@@ -2053,6 +2077,31 @@ export default function NewProduct() {
                </div>
             )}
          </AnimatePresence>
+
+         {/* ── MOBİL KAYDET ÇUBUĞU ───────────────────────────────────────── */}
+         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-200 bg-white/95 p-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md lg:hidden">
+            <div className="mx-auto flex max-w-7xl gap-2">
+               <button
+                  type="button"
+                  onClick={() => setIsPreviewOpen(true)}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-[13px] font-bold text-zinc-600 touch-manipulation"
+               >
+                  <FaEye className="h-3.5 w-3.5" />
+                  Ön İzleme
+               </button>
+               <button
+                  type="button"
+                  onClick={() => handleSubmit()}
+                  disabled={loading}
+                  className="flex flex-[1.4] items-center justify-center gap-2 rounded-xl bg-[#38BDF8] px-4 py-3 text-[13px] font-black text-white shadow-lg touch-manipulation disabled:opacity-50"
+               >
+                  {loading
+                     ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                     : <FaSave className="h-4 w-4" />}
+                  Kaydet
+               </button>
+            </div>
+         </div>
 
          <style>{`
             .custom-scrollbar::-webkit-scrollbar { width: 6px; }
