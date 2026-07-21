@@ -27,7 +27,6 @@ import {
    FaAlignRight,
    FaRedo,
    FaUndo,
-   FaBarcode,
    FaEye,
    FaStar,
    FaGripVertical,
@@ -464,6 +463,21 @@ const TEXTAREA_CLS = "w-full rounded-xl border border-zinc-200 bg-zinc-50/30 p-4
 // ── Yeni UUID ─────────────────────────────────────────────────────────────────
 const uid = () => Math.random().toString(36).slice(2, 9)
 
+function createRandomEan13(): string {
+   const prefix = "869"
+   const mid = String(Math.floor(Math.random() * 1_000_000_000)).padStart(9, "0")
+   const digits = (prefix + mid).split("").map(Number)
+   const sum = digits.reduce((acc, d, i) => acc + d * (i % 2 === 0 ? 1 : 3), 0)
+   const check = (10 - (sum % 10)) % 10
+   return prefix + mid + check
+}
+
+function createRandomSku(): string {
+   const t = Date.now().toString(36).toUpperCase()
+   const r = Math.random().toString(36).slice(2, 6).toUpperCase()
+   return `AA-${t}${r}`
+}
+
 // ── ANA BİLEŞEN ──────────────────────────────────────────────────────────────
 export default function NewProduct() {
    const router = useRouter()
@@ -683,30 +697,11 @@ export default function NewProduct() {
       })
    }
 
-   const generateBarcode = () => {
-      // 13 haneli rastgele bir barkod üret (EAN-13 formatına yakın)
-      const prefix = "869" // Türkiye prefixi (isteğe bağlı)
-      const random = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0')
-      const codeWithoutCheck = prefix + random
-      
-      // Basit bir checksum hesapla (opsiyonel ama daha profesyonel durur)
-      let sum = 0
-      for (let i = 0; i < 12; i++) {
-         sum += parseInt(codeWithoutCheck[i]) * (i % 2 === 0 ? 1 : 3)
-      }
-      const checkDigit = (10 - (sum % 10)) % 10
-      const finalBarcode = codeWithoutCheck + checkDigit
-      
-      set("barcode", finalBarcode)
-   }
-
    // ── Varyantlar ─────────────────────────────────────────────────────────
    const addVariant = () => {
-      // Ana SKU varsa onun sonuna numara ekleyerek otomatik üret
-      const newSku = form.sku ? `${form.sku}-V${variants.length + 1}` : ""
       setVariants(prev => [
          ...prev,
-         { id: uid(), name: "", sku: newSku, price: form.basePrice, stock: "0", lowStockThreshold: "5", imageUrl: "" },
+         { id: uid(), name: "", sku: "", price: form.basePrice, stock: "0", lowStockThreshold: "5", imageUrl: "" },
       ])
    }
    const removeVariant = (id: string) => {
@@ -774,18 +769,22 @@ export default function NewProduct() {
       }
 
       setLoading(true)
+      const autoSku = form.sku.trim() || createRandomSku()
+      const autoBarcode = form.barcode.trim() || createRandomEan13()
       try {
          const res = await fetch("/api/admin/products", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                ...form,
+               sku: autoSku,
+               barcode: autoBarcode,
                description,
                images,
                categoryIds: extraCategoryIds,
                variants: variants.map(v => ({
                   ...v,
-                  price: v.price || form.basePrice, // Boşsa temel fiyatı al
+                  price: v.price || form.basePrice,
                }))
             }),
          })
@@ -864,7 +863,6 @@ export default function NewProduct() {
             isUploading={isUploading}
             onPickImages={uploadImageFiles}
             onRemoveImage={removeImage}
-            generateBarcode={generateBarcode}
             loading={loading}
             onSave={() => void handleSubmit()}
             onValidationError={(message) => {
@@ -1088,39 +1086,6 @@ export default function NewProduct() {
                                     </div>
                                  )}
                               </Field>
-
-                              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                 <Field label="SKU (Stok Kodu)">
-                                    <input
-                                       type="text"
-                                       value={form.sku}
-                                       onChange={e => set("sku", e.target.value)}
-                                       placeholder="Örn: BM-102"
-                                       className={INPUT_CLS}
-                                    />
-                                 </Field>
-                                 <Field label="Barkod" hint="EAN, UPC veya ISBN">
-                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
-                                       <div className="relative min-w-0 flex-1">
-                                          <FaBarcode className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-300" />
-                                          <input
-                                             type="text"
-                                             value={form.barcode}
-                                             onChange={e => set("barcode", e.target.value)}
-                                             placeholder="8690000000000"
-                                             className={INPUT_CLS + " pl-9"}
-                                          />
-                                       </div>
-                                       <button
-                                          type="button"
-                                          onClick={generateBarcode}
-                                          className="h-11 shrink-0 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-[11px] font-bold text-zinc-600 transition-colors hover:bg-zinc-100 touch-manipulation sm:w-auto"
-                                       >
-                                          OTOMATİK ÜRET
-                                       </button>
-                                    </div>
-                                 </Field>
-                              </div>
 
                               <Field
                                  label="Kısa Özet Açıklama"

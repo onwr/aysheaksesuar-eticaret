@@ -3,7 +3,6 @@
 import { useRef } from "react"
 import Link from "next/link"
 import {
-  FaBarcode,
   FaCheckCircle,
   FaChevronLeft,
   FaChevronRight,
@@ -25,7 +24,6 @@ const STEPS = [
   { id: "info", label: "Bilgi", hint: "Ürün adı ve kategori" },
   { id: "image", label: "Görsel", hint: "Fotoğraf ekle" },
   { id: "price", label: "Fiyat", hint: "Fiyat ve stok" },
-  { id: "code", label: "Kod", hint: "SKU ve barkod" },
   { id: "publish", label: "Kaydet", hint: "Yayınla" },
 ] as const
 
@@ -44,8 +42,6 @@ interface MobileForm {
   subCategoryId: string
   basePrice: string
   compareAtPrice: string
-  sku: string
-  barcode: string
   isActive: boolean
   isFeatured: boolean
 }
@@ -63,7 +59,6 @@ interface MobileNewProductWizardProps {
   isUploading: boolean
   onPickImages: (files: FileList | null) => void
   onRemoveImage: (index: number) => void
-  generateBarcode: () => void
   loading: boolean
   onSave: () => void
   onValidationError: (message: string) => void
@@ -80,8 +75,6 @@ function validateStep(stepId: StepId, form: MobileForm, images: string[], stock:
     case "price":
       if (!form.basePrice || Number(form.basePrice) <= 0) return "Geçerli bir satış fiyatı girin."
       if (stock === "" || Number(stock) < 0) return "Stok adedi girin."
-      return null
-    case "code":
       return null
     case "publish":
       if (!form.name.trim() || !form.basePrice) return "Eksik bilgiler var. Önceki adımları kontrol edin."
@@ -104,7 +97,6 @@ export function MobileNewProductWizard({
   isUploading,
   onPickImages,
   onRemoveImage,
-  generateBarcode,
   loading,
   onSave,
   onValidationError,
@@ -349,42 +341,6 @@ export function MobileNewProductWizard({
                 min="0"
                 className={INPUT_CLS + " text-xl font-black"}
               />
-            </div>
-          </div>
-        )}
-
-        {current.id === "code" && (
-          <div className="space-y-4">
-            <div>
-              <label className="mb-2 block text-[13px] font-bold text-zinc-700">SKU (Stok Kodu)</label>
-              <input
-                type="text"
-                value={form.sku}
-                onChange={(e) => set("sku", e.target.value)}
-                placeholder="Örn: AA-102"
-                className={INPUT_CLS}
-              />
-            </div>
-            <div>
-              <label className="mb-2 block text-[13px] font-bold text-zinc-700">Barkod</label>
-              <div className="relative mb-3">
-                <FaBarcode className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-300" />
-                <input
-                  type="text"
-                  value={form.barcode}
-                  onChange={(e) => set("barcode", e.target.value)}
-                  placeholder="8690000000000"
-                  className={INPUT_CLS + " pl-11"}
-                />
-              </div>
-              <button
-                type="button"
-                onClick={generateBarcode}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 text-[13px] font-bold text-zinc-700 touch-manipulation"
-              >
-                <FaBarcode className="h-4 w-4" />
-                Otomatik Barkod Üret
-              </button>
             </div>
           </div>
         )}
