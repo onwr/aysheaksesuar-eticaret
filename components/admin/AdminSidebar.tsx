@@ -182,13 +182,13 @@ export function AdminSidebar({
             <div className="relative h-9 w-9 shrink-0 rounded-xl overflow-hidden bg-[#38BDF8]/10 flex items-center justify-center">
               <Image
                 src="/logo.png"
-                alt="YDY Trend"
+                alt="Ayshe Aksesuar"
                 fill
                 className="object-contain"
               />
             </div>
             <div className="leading-tight min-w-0">
-              <p className="text-[13px] font-bold text-zinc-800 truncate">YDY Trend</p>
+              <p className="text-[13px] font-bold text-zinc-800 truncate">Ayshe Aksesuar</p>
               <p className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Admin Panel</p>
             </div>
           </div>

@@ -28,9 +28,9 @@ export function AdminShellClient({
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-zinc-100 bg-white px-4 lg:hidden">
           <div className="flex items-center gap-3">
             <div className="relative h-8 w-8 overflow-hidden rounded-lg bg-[#38BDF8]/10 flex items-center justify-center">
-              <Image src="/logo.png" alt="YDY Trend" fill className="object-contain" />
+              <Image src="/logo.png" alt="Ayshe Aksesuar" fill className="object-contain" />
             </div>
-            <span className="text-[14px] font-bold text-zinc-800">Admin</span>
+            <span className="text-[14px] font-bold text-zinc-800">Ayshe Aksesuar</span>
           </div>
           <button
             onClick={() => setIsSidebarOpen(true)}

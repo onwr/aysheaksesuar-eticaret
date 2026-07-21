@@ -44,6 +44,7 @@ import {
   parseCategoryTreeItems,
   rootCategories,
 } from "@/types/category"
+import { MobileNewProductWizard } from "@/components/admin/MobileNewProductWizard"
 
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
@@ -476,6 +477,7 @@ export default function NewProduct() {
    const [activeTab, setActiveTab] = useState<"info" | "seo">("info")
    const [isDraggingFile, setIsDraggingFile] = useState(false)
    const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+   const [mobileStep, setMobileStep] = useState(0)
 
    const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -616,36 +618,42 @@ export default function NewProduct() {
       setImageUrl("")
    }
 
-   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files
-      if (!files) return
+   const uploadImageFiles = useCallback((files: FileList | File[] | null) => {
+      if (!files || files.length === 0) return
+      const imageFiles = Array.from(files).filter((file) => file.type.startsWith("image/"))
+      if (imageFiles.length === 0) return
 
       setIsUploading(true)
-      Array.from(files).forEach(file => {
+      let remaining = imageFiles.length
+
+      imageFiles.forEach((file) => {
          const reader = new FileReader()
          reader.onloadend = async () => {
-            if (typeof reader.result === 'string') {
-               const base64 = reader.result
-               try {
+            try {
+               if (typeof reader.result === "string") {
                   const res = await fetch("/api/admin/upload", {
                      method: "POST",
                      headers: { "Content-Type": "application/json" },
-                     body: JSON.stringify({ image: base64, folder: "products" })
+                     body: JSON.stringify({ image: reader.result, folder: "products" }),
                   })
                   const data = await res.json()
                   if (res.ok && data.url) {
-                     setImages(prev => [...prev, data.url])
+                     setImages((prev) => [...prev, data.url])
                   }
-               } catch (error) {
-                  console.error("Upload error:", error)
-               } finally {
-                  setIsUploading(false)
                }
+            } catch (error) {
+               console.error("Upload error:", error)
+            } finally {
+               remaining -= 1
+               if (remaining <= 0) setIsUploading(false)
             }
          }
          reader.readAsDataURL(file)
       })
+   }, [])
 
+   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      uploadImageFiles(e.target.files)
       if (fileInputRef.current) fileInputRef.current.value = ""
    }
 
@@ -661,35 +669,7 @@ export default function NewProduct() {
    const handleDrop = (e: React.DragEvent) => {
       e.preventDefault()
       setIsDraggingFile(false)
-      const files = e.dataTransfer.files
-      if (files && files.length > 0) {
-         setIsUploading(true)
-         Array.from(files).forEach(file => {
-            if (!file.type.startsWith('image/')) return
-            const reader = new FileReader()
-            reader.onloadend = async () => {
-               if (typeof reader.result === 'string') {
-                  const base64 = reader.result
-                  try {
-                     const res = await fetch("/api/admin/upload", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ image: base64, folder: "products" })
-                     })
-                     const data = await res.json()
-                     if (res.ok && data.url) {
-                        setImages(prev => [...prev, data.url])
-                     }
-                  } catch (error) {
-                     console.error("Upload error:", error)
-                  } finally {
-                     setIsUploading(false)
-                  }
-               }
-            }
-            reader.readAsDataURL(file)
-         })
-      }
+      uploadImageFiles(e.dataTransfer.files)
    }
 
    const removeImage = (i: number) => setImages(prev => prev.filter((_, j) => j !== i))
@@ -869,6 +849,31 @@ export default function NewProduct() {
             )}
          </AnimatePresence>
 
+         <MobileNewProductWizard
+            step={mobileStep}
+            onStepChange={setMobileStep}
+            form={form}
+            set={set}
+            categories={categories}
+            subCategories={subCategories}
+            images={images}
+            stock={variants[0]?.stock ?? "0"}
+            onStockChange={(value) => {
+               if (variants[0]) setVariantField(variants[0].id, "stock", value)
+            }}
+            isUploading={isUploading}
+            onPickImages={uploadImageFiles}
+            onRemoveImage={removeImage}
+            generateBarcode={generateBarcode}
+            loading={loading}
+            onSave={() => void handleSubmit()}
+            onValidationError={(message) => {
+               setToast({ msg: message, ok: false })
+               setTimeout(() => setToast(null), 4000)
+            }}
+         />
+
+         <div className="hidden lg:block">
          {/* ── BREADCRUMB ─────────────────────────────────────────────────── */}
          <nav className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11.5px] font-medium text-zinc-400 sm:mb-8">
             <Link href="/admin" className="hover:text-zinc-600 transition-colors">Dashboard</Link>
@@ -1948,6 +1953,7 @@ export default function NewProduct() {
                )}
             </AnimatePresence>
          </form>
+         </div>
 
          {/* ── ÖN İZLEME MODALI ───────────────────────────────────────────── */}
          <AnimatePresence>
@@ -2077,31 +2083,6 @@ export default function NewProduct() {
                </div>
             )}
          </AnimatePresence>
-
-         {/* ── MOBİL KAYDET ÇUBUĞU ───────────────────────────────────────── */}
-         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-200 bg-white/95 p-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md lg:hidden">
-            <div className="mx-auto flex max-w-7xl gap-2">
-               <button
-                  type="button"
-                  onClick={() => setIsPreviewOpen(true)}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-[13px] font-bold text-zinc-600 touch-manipulation"
-               >
-                  <FaEye className="h-3.5 w-3.5" />
-                  Ön İzleme
-               </button>
-               <button
-                  type="button"
-                  onClick={() => handleSubmit()}
-                  disabled={loading}
-                  className="flex flex-[1.4] items-center justify-center gap-2 rounded-xl bg-[#38BDF8] px-4 py-3 text-[13px] font-black text-white shadow-lg touch-manipulation disabled:opacity-50"
-               >
-                  {loading
-                     ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
-                     : <FaSave className="h-4 w-4" />}
-                  Kaydet
-               </button>
-            </div>
-         </div>
 
          <style>{`
             .custom-scrollbar::-webkit-scrollbar { width: 6px; }
