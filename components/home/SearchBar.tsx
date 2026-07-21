@@ -140,7 +140,7 @@ export function SearchBar({ className = "", inputClassName = "", onNavigate }: S
   }
 
   return (
-    <div className={`relative z-60 min-w-0 ${className}`} ref={searchRef}>
+    <div className={`relative z-[100] min-w-0 ${className}`} ref={searchRef}>
       <form
         action="/search"
         method="GET"
@@ -199,7 +199,7 @@ export function SearchBar({ className = "", inputClassName = "", onNavigate }: S
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.98 }}
             transition={{ duration: 0.18 }}
-            className="absolute left-0 right-0 top-[calc(100%+8px)] z-70 max-h-[min(70vh,420px)] overflow-y-auto rounded-2xl border border-brand-border bg-white shadow-[0_16px_48px_rgba(35,32,32,0.12)]"
+            className="absolute left-0 right-0 top-[calc(100%+8px)] z-[110] max-h-[min(70vh,420px)] overflow-y-auto rounded-2xl border border-brand-border bg-white shadow-[0_16px_48px_rgba(35,32,32,0.12)]"
           >
             {isSearchLoading ? (
               <div className="flex items-center justify-center py-10">

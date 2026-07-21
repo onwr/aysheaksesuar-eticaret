@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
+import { createPortal } from "react-dom"
 import {
   FaTimes,
   FaBars,
@@ -54,6 +55,11 @@ export function MobileNavigation({
 }: MobileNavigationProps) {
   const displayItems = toDisplayItems(navItems)
   const [expandedId, setExpandedId] = useState<number | null>(null)
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
 
   useEffect(() => {
     if (!isOpen) return
@@ -69,35 +75,34 @@ export function MobileNavigation({
     }
   }, [isOpen, onClose])
 
-  return (
-    <>
-      {showMobileSearch && (
-        <div className="border-b border-brand-border bg-white px-4 py-3 md:hidden">
-          <SearchBar onNavigate={onToggleMobileSearch} />
-        </div>
-      )}
+  const mobileSearch = showMobileSearch ? (
+    <div className="fixed inset-x-0 top-0 z-[9997] border-b border-brand-border bg-white px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] shadow-md md:hidden">
+      <SearchBar onNavigate={onToggleMobileSearch} />
+    </div>
+  ) : null
 
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-60 bg-black/40 md:hidden"
-              onClick={onClose}
-              aria-hidden
-            />
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", stiffness: 320, damping: 32 }}
-              role="dialog"
-              aria-modal="true"
-              aria-label="Mobil menü"
-              className="fixed inset-y-0 left-0 z-70 flex w-[min(100%,320px)] flex-col bg-white shadow-xl md:hidden"
-            >
+  const mobileMenu = (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9998] bg-black/45 md:hidden"
+            onClick={onClose}
+            aria-hidden
+          />
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", stiffness: 320, damping: 32 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobil menü"
+            className="fixed inset-y-0 left-0 z-[9999] flex w-[min(100%,320px)] flex-col bg-white pt-[env(safe-area-inset-top)] shadow-2xl md:hidden"
+          >
               <div className="flex items-center justify-between border-b border-brand-border px-4 py-4">
                 <span className="font-display text-base font-semibold text-brand-navy">Menü</span>
                 <button
@@ -198,6 +203,14 @@ export function MobileNavigation({
           </>
         )}
       </AnimatePresence>
+  )
+
+  if (!mounted) return null
+
+  return (
+    <>
+      {mobileSearch && createPortal(mobileSearch, document.body)}
+      {createPortal(mobileMenu, document.body)}
     </>
   )
 }

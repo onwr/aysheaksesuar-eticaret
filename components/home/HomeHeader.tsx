@@ -84,7 +84,11 @@ export function HomeHeader() {
 
   return (
     <>
-      <div className="sticky top-0 z-50 w-full overflow-visible">
+      <div
+        className={`sticky top-0 w-full overflow-visible ${
+          mobileMenuOpen || showMobileSearch ? "z-[10001]" : "z-50"
+        }`}
+      >
         <AnnouncementBar />
 
         <header
