@@ -27,7 +27,13 @@ export default function CheckoutClient() {
   const [cities, setCities] = useState<TurkeyLocation[]>([])
   const [districts, setDistricts] = useState<TurkeyLocation[]>([])
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([])
-  const [storeSettings, setStoreSettings] = useState({ threshold: 750, cost: 49.9 })
+  const [storeSettings, setStoreSettings] = useState({
+    threshold: 750,
+    cost: 49.9,
+    cardPaymentEnabled: true,
+  })
+
+  const cardPaymentEnabled = storeSettings.cardPaymentEnabled !== false
 
   const [paymentMethod, setPaymentMethod] = useState<"CARD" | "BANK_TRANSFER">("CARD")
   const [paytrToken, setPaytrToken] = useState<string | null>(null)
@@ -53,7 +59,9 @@ export default function CheckoutClient() {
   useEffect(() => {
     fetch("/api/cart").then(r => r.json()).then(d => {
       setCart(d)
-      if (d.settings) setStoreSettings(d.settings)
+      if (d.settings) {
+        setStoreSettings((prev) => ({ ...prev, ...d.settings }))
+      }
       if (d.lines?.length && !beginCheckoutTracked.current) {
         beginCheckoutTracked.current = true
         trackAnalyticsEventSafe("begin_checkout", {
@@ -91,6 +99,12 @@ export default function CheckoutClient() {
       }
     })
   }, [])
+
+  useEffect(() => {
+    if (!cardPaymentEnabled) {
+      setPaymentMethod("BANK_TRANSFER")
+    }
+  }, [cardPaymentEnabled])
 
   useEffect(() => {
     const selected = cities.find(c => c.name === form.city)
@@ -381,52 +395,61 @@ export default function CheckoutClient() {
                 <div className="space-y-6">
                   <h2 className="text-xl font-black uppercase italic text-zinc-800">Ödeme Yöntemi</h2>
 
-                  {/* Ödeme yöntemi seçimi */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("CARD")}
-                      className={`flex flex-col items-center gap-2 rounded-2xl border-2 p-5 transition-all ${
-                        paymentMethod === "CARD"
-                          ? "border-brand-gold bg-brand-gold/5"
-                          : "border-zinc-200 hover:border-zinc-300"
-                      }`}
-                    >
-                      <FaCreditCard className={`h-6 w-6 ${paymentMethod === "CARD" ? "text-brand-gold" : "text-zinc-400"}`} />
-                      <span className={`text-xs font-black uppercase tracking-wider ${paymentMethod === "CARD" ? "text-brand-gold" : "text-zinc-500"}`}>
-                        Kredi / Banka Kartı
-                      </span>
-                      {paymentMethod === "CARD" && (
-                        <span className="text-[9px] text-zinc-400">Taksit imkânı mevcut</span>
-                      )}
-                    </button>
+                  {cardPaymentEnabled ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod("CARD")}
+                        className={`flex flex-col items-center gap-2 rounded-2xl border-2 p-5 transition-all ${
+                          paymentMethod === "CARD"
+                            ? "border-brand-gold bg-brand-gold/5"
+                            : "border-zinc-200 hover:border-zinc-300"
+                        }`}
+                      >
+                        <FaCreditCard className={`h-6 w-6 ${paymentMethod === "CARD" ? "text-brand-gold" : "text-zinc-400"}`} />
+                        <span className={`text-xs font-black uppercase tracking-wider ${paymentMethod === "CARD" ? "text-brand-gold" : "text-zinc-500"}`}>
+                          Kredi / Banka Kartı
+                        </span>
+                        {paymentMethod === "CARD" && (
+                          <span className="text-[9px] text-zinc-400">Taksit imkânı mevcut</span>
+                        )}
+                      </button>
 
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("BANK_TRANSFER")}
-                      className={`flex flex-col items-center gap-2 rounded-2xl border-2 p-5 transition-all ${
-                        paymentMethod === "BANK_TRANSFER"
-                          ? "border-brand-gold bg-brand-gold/5"
-                          : "border-zinc-200 hover:border-zinc-300"
-                      }`}
-                    >
-                      <FaUniversity className={`h-6 w-6 ${paymentMethod === "BANK_TRANSFER" ? "text-brand-gold" : "text-zinc-400"}`} />
-                      <span className={`text-xs font-black uppercase tracking-wider ${paymentMethod === "BANK_TRANSFER" ? "text-brand-gold" : "text-zinc-500"}`}>
-                        Havale / EFT
-                      </span>
-                      {paymentMethod === "BANK_TRANSFER" && (
-                        <span className="text-[9px] text-zinc-400">Dekont yüklemeniz gerekecek</span>
-                      )}
-                    </button>
-                  </div>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod("BANK_TRANSFER")}
+                        className={`flex flex-col items-center gap-2 rounded-2xl border-2 p-5 transition-all ${
+                          paymentMethod === "BANK_TRANSFER"
+                            ? "border-brand-gold bg-brand-gold/5"
+                            : "border-zinc-200 hover:border-zinc-300"
+                        }`}
+                      >
+                        <FaUniversity className={`h-6 w-6 ${paymentMethod === "BANK_TRANSFER" ? "text-brand-gold" : "text-zinc-400"}`} />
+                        <span className={`text-xs font-black uppercase tracking-wider ${paymentMethod === "BANK_TRANSFER" ? "text-brand-gold" : "text-zinc-500"}`}>
+                          Havale / EFT
+                        </span>
+                        {paymentMethod === "BANK_TRANSFER" && (
+                          <span className="text-[9px] text-zinc-400">Dekont yüklemeniz gerekecek</span>
+                        )}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 rounded-2xl border-2 border-brand-gold/30 bg-brand-gold/5 p-5">
+                      <FaUniversity className="h-6 w-6 shrink-0 text-brand-gold" />
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-wider text-brand-gold">Havale / EFT</p>
+                        <p className="mt-1 text-[11px] text-zinc-500">Sipariş sonrası dekont yüklemeniz gerekecek.</p>
+                      </div>
+                    </div>
+                  )}
 
-                  {paymentMethod === "CARD" && (
+                  {cardPaymentEnabled && paymentMethod === "CARD" && (
                     <div className="rounded-2xl border border-zinc-100 bg-zinc-50 p-4 text-sm text-zinc-500">
                       Siparişi onayladığınızda güvenli ödeme sayfasına yönlendirileceksiniz.
                     </div>
                   )}
 
-                  {paymentMethod === "BANK_TRANSFER" && (
+                  {(paymentMethod === "BANK_TRANSFER" || !cardPaymentEnabled) && (
                     <BankTransferInfo amountLabel={formatCurrency(totals.grandTotal)} />
                   )}
 

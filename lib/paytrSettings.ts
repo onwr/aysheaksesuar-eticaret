@@ -4,12 +4,14 @@ export const PAYTR_MERCHANT_ID_KEY = "PAYTR_MERCHANT_ID"
 export const PAYTR_MERCHANT_KEY_KEY = "PAYTR_MERCHANT_KEY"
 export const PAYTR_MERCHANT_SALT_KEY = "PAYTR_MERCHANT_SALT"
 export const PAYTR_TEST_MODE_KEY = "PAYTR_TEST_MODE"
+export const PAYTR_CARD_ENABLED_KEY = "PAYTR_CARD_ENABLED"
 
 export const PAYTR_SETTING_KEYS = [
   PAYTR_MERCHANT_ID_KEY,
   PAYTR_MERCHANT_KEY_KEY,
   PAYTR_MERCHANT_SALT_KEY,
   PAYTR_TEST_MODE_KEY,
+  PAYTR_CARD_ENABLED_KEY,
 ] as const
 
 export type PaytrCredentials = {
@@ -22,6 +24,7 @@ export type PaytrCredentials = {
 export type PaytrSettingsForAdmin = {
   merchantId: string
   testMode: boolean
+  cardPaymentEnabled: boolean
   hasMerchantKey: boolean
   hasMerchantSalt: boolean
   /** Veritabanı boşken .env değerleri kullanılıyorsa true */
@@ -40,6 +43,19 @@ function envCredentials(): PaytrCredentials {
 function parseTestMode(raw: string | undefined, fallback: boolean): boolean {
   if (raw == null || raw === "") return fallback
   return raw === "1" || raw === "true"
+}
+
+function parseCardEnabled(raw: string | undefined): boolean {
+  if (raw == null || raw === "") return true
+  return raw === "1" || raw === "true"
+}
+
+export async function isCardPaymentEnabled(prisma: PrismaClient): Promise<boolean> {
+  const row = await prisma.setting.findUnique({
+    where: { key: PAYTR_CARD_ENABLED_KEY },
+    select: { value: true },
+  })
+  return parseCardEnabled(row?.value)
 }
 
 export async function getPaytrSettingsFromDb(prisma: PrismaClient): Promise<PaytrCredentials> {
@@ -77,10 +93,12 @@ export async function getPaytrConfigForAdmin(prisma: PrismaClient): Promise<Payt
   const db = await getPaytrSettingsFromDb(prisma)
   const env = envCredentials()
   const dbConfigured = Boolean(db.merchantId || db.merchantKey || db.merchantSalt)
+  const cardPaymentEnabled = await isCardPaymentEnabled(prisma)
 
   return {
     merchantId: db.merchantId,
     testMode: db.testMode,
+    cardPaymentEnabled,
     hasMerchantKey: db.merchantKey.length > 0,
     hasMerchantSalt: db.merchantSalt.length > 0,
     usingEnvFallback: !dbConfigured && Boolean(env.merchantId && env.merchantKey && env.merchantSalt),
@@ -90,6 +108,7 @@ export async function getPaytrConfigForAdmin(prisma: PrismaClient): Promise<Payt
 export type PersistPaytrInput = {
   merchantId: string
   testMode: boolean
+  cardPaymentEnabled: boolean
   merchantKey?: string
   merchantSalt?: string
 }
@@ -98,6 +117,7 @@ export async function persistPaytrSettings(prisma: PrismaClient, data: PersistPa
   const entries: Array<{ key: string; value: string }> = [
     { key: PAYTR_MERCHANT_ID_KEY, value: data.merchantId.trim() },
     { key: PAYTR_TEST_MODE_KEY, value: data.testMode ? "1" : "0" },
+    { key: PAYTR_CARD_ENABLED_KEY, value: data.cardPaymentEnabled ? "1" : "0" },
   ]
 
   if (data.merchantKey !== undefined && data.merchantKey.length > 0) {

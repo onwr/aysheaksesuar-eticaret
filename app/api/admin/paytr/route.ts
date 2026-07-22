@@ -9,12 +9,23 @@ import {
 } from "@/lib/paytrSettings"
 import { AdminActivityAction, logAdminActivity } from "@/lib/adminActivityLog"
 
-const putSchema = z.object({
-  merchantId: z.string().trim().min(1).max(64),
-  testMode: z.boolean(),
-  merchantKey: z.string().max(256).optional(),
-  merchantSalt: z.string().max(256).optional(),
-})
+const putSchema = z
+  .object({
+    merchantId: z.string().trim().max(64),
+    testMode: z.boolean(),
+    cardPaymentEnabled: z.boolean(),
+    merchantKey: z.string().max(256).optional(),
+    merchantSalt: z.string().max(256).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.cardPaymentEnabled && !data.merchantId.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Kart ödemesi açıkken Mağaza No zorunludur.",
+        path: ["merchantId"],
+      })
+    }
+  })
 
 export async function GET() {
   try {
@@ -49,6 +60,7 @@ export async function PUT(request: Request) {
     const payload: PersistPaytrInput = {
       merchantId: b.merchantId,
       testMode: b.testMode,
+      cardPaymentEnabled: b.cardPaymentEnabled,
     }
     if (b.merchantKey !== undefined && b.merchantKey.length > 0) {
       payload.merchantKey = b.merchantKey
@@ -63,7 +75,7 @@ export async function PUT(request: Request) {
     await logAdminActivity(prisma, session, {
       action: AdminActivityAction.PAYTR_SAVE,
       resourceType: "Settings",
-      metadata: { area: "paytr", testMode: b.testMode },
+      metadata: { area: "paytr", testMode: b.testMode, cardPaymentEnabled: b.cardPaymentEnabled },
       request,
     })
 

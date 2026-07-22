@@ -4,6 +4,7 @@ import { calculateCartSummary, mapCartItemsToLines } from "@/lib/cart"
 import { clearGuestCartCookieOnResponse, resolveCartIdentity } from "@/lib/cartSession"
 import { prisma } from "@/lib/prisma"
 import { getShippingSettings } from "@/lib/shippingSettings"
+import { isCardPaymentEnabled } from "@/lib/paytrSettings"
 
 const cartInclude = {
   items: {
@@ -48,6 +49,7 @@ export async function GET() {
     const identity = await resolveCartIdentity()
 
     const { threshold, cost } = await getShippingSettings(prisma)
+    const cardPaymentEnabled = await isCardPaymentEnabled(prisma)
 
     if (identity.kind === "none" || identity.kind === "guest") {
       const lines = mapCartItemsToLines([])
@@ -56,7 +58,7 @@ export async function GET() {
         cartId: null,
         lines,
         summary,
-        settings: { threshold, cost },
+        settings: { threshold, cost, cardPaymentEnabled },
       })
       if (identity.kind === "guest") {
         clearGuestCartCookieOnResponse(res)
@@ -76,7 +78,7 @@ export async function GET() {
       cartId: cart?.id ?? null,
       lines,
       summary,
-      settings: { threshold, cost }
+      settings: { threshold, cost, cardPaymentEnabled }
     })
   } catch (error) {
     console.error("Cart GET error:", error)

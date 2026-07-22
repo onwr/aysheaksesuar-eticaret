@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getPaytrToken } from "@/lib/paytr"
-import { getPaytrConfig } from "@/lib/paytrSettings"
+import { getPaytrConfig, isCardPaymentEnabled } from "@/lib/paytrSettings"
 import { getClientIp } from "@/lib/checkoutRateLimit"
 import { toNumber } from "@/lib/cart"
 
@@ -10,6 +10,13 @@ export async function POST(req: Request) {
     const { orderNo } = (await req.json()) as { orderNo?: string }
     if (!orderNo) {
       return NextResponse.json({ message: "orderNo gerekli." }, { status: 400 })
+    }
+
+    if (!(await isCardPaymentEnabled(prisma))) {
+      return NextResponse.json(
+        { message: "Kredi kartı ile ödeme şu an kullanılamıyor." },
+        { status: 403 }
+      )
     }
 
     const order = await prisma.order.findUnique({

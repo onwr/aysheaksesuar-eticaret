@@ -22,6 +22,7 @@ import { getShippingSettings } from "@/lib/shippingSettings"
 import { orderPlacedEmailContent } from "@/lib/emails/orderPlaced"
 import { dispatchTransactionalEmail } from "@/lib/email/dispatch"
 import { getBankTransferSettings, formatIbanDisplay } from "@/lib/bankTransferSettings"
+import { isCardPaymentEnabled } from "@/lib/paytrSettings"
 
 
 function isUniqueViolation(error: unknown): boolean {
@@ -133,6 +134,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: msg }, { status: 400 })
     }
     const body = parsed.data
+
+    if (body.paymentMethod === "CARD" && !(await isCardPaymentEnabled(prisma))) {
+      return NextResponse.json(
+        { message: "Kredi kartı ile ödeme şu an kullanılamıyor." },
+        { status: 400 }
+      )
+    }
 
     const userId = identity.userId
     const user = await prisma.user.findUnique({ where: { id: userId } })

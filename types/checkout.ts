@@ -4,7 +4,7 @@ import type { TurkeyLocation } from "@/lib/turkiyeLocations"
 export type CheckoutCart = {
   lines: CartLine[]
   summary: CartSummary
-  settings?: { threshold: number; cost: number }
+  settings?: { threshold: number; cost: number; cardPaymentEnabled?: boolean }
 }
 
 export type SavedAddress = {

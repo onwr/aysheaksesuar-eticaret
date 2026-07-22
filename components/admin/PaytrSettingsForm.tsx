@@ -7,6 +7,7 @@ type FormState = {
   merchantKey: string
   merchantSalt: string
   testMode: boolean
+  cardPaymentEnabled: boolean
 }
 
 type LoadState = FormState & {
@@ -26,6 +27,7 @@ export function PaytrSettingsForm({ layout = "page" }: { layout?: "page" | "embe
     merchantKey: "",
     merchantSalt: "",
     testMode: true,
+    cardPaymentEnabled: true,
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -45,6 +47,7 @@ export function PaytrSettingsForm({ layout = "page" }: { layout?: "page" | "embe
             ...f,
             merchantId: d.merchantId ?? "",
             testMode: Boolean(d.testMode),
+            cardPaymentEnabled: d.cardPaymentEnabled !== false,
             merchantKey: "",
             merchantSalt: "",
           }))
@@ -65,6 +68,7 @@ export function PaytrSettingsForm({ layout = "page" }: { layout?: "page" | "embe
       const body: Record<string, unknown> = {
         merchantId: form.merchantId.trim(),
         testMode: form.testMode,
+        cardPaymentEnabled: form.cardPaymentEnabled,
       }
       if (form.merchantKey.trim()) body.merchantKey = form.merchantKey.trim()
       if (form.merchantSalt.trim()) body.merchantSalt = form.merchantSalt.trim()
@@ -122,6 +126,21 @@ export function PaytrSettingsForm({ layout = "page" }: { layout?: "page" | "embe
       )}
 
       <div className="space-y-4 rounded-xl border border-zinc-100 bg-white p-5">
+        <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-3">
+          <input
+            type="checkbox"
+            checked={form.cardPaymentEnabled}
+            onChange={(e) => setForm((f) => ({ ...f, cardPaymentEnabled: e.target.checked }))}
+            className="h-4 w-4 rounded border-zinc-300"
+          />
+          <span>
+            <span className="block text-[13px] font-medium text-zinc-800">Kredi kartı ile ödeme</span>
+            <span className="text-[11px] text-zinc-500">
+              Kapalıyken checkout’ta yalnızca Havale / EFT görünür.
+            </span>
+          </span>
+        </label>
+
         <Field
           label="Mağaza No (merchant_id)"
           value={form.merchantId}
@@ -158,7 +177,7 @@ export function PaytrSettingsForm({ layout = "page" }: { layout?: "page" | "embe
         <button
           type="button"
           onClick={() => void save()}
-          disabled={saving || !form.merchantId.trim()}
+          disabled={saving || (form.cardPaymentEnabled && !form.merchantId.trim())}
           className="rounded-lg bg-zinc-900 px-5 py-2.5 text-[12px] font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
         >
           {saving ? "Kaydediliyor..." : "Kaydet"}
