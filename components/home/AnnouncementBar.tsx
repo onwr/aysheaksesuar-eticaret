@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { FaTruck, FaShieldAlt, FaUndo, FaStar } from "react-icons/fa"
-import { DEFAULT_HEADER_ANNOUNCEMENTS, ANNOUNCEMENTS_UPDATED_EVENT } from "@/lib/headerAnnouncements"
+import { ANNOUNCEMENTS_UPDATED_EVENT } from "@/lib/headerAnnouncements"
 
 const ICONS = [FaTruck, FaShieldAlt, FaUndo, FaStar] as const
 
@@ -15,12 +15,11 @@ async function fetchAnnouncementItems(): Promise<string[]> {
   if (!res.ok) throw new Error("fetch failed")
   const data = (await res.json()) as { items?: unknown }
   const raw = Array.isArray(data.items) ? data.items : []
-  const parsed = raw.map((v) => String(v ?? "").trim()).filter(Boolean)
-  return parsed.length > 0 ? parsed : DEFAULT_HEADER_ANNOUNCEMENTS
+  return raw.map((v) => String(v ?? "").trim()).filter(Boolean)
 }
 
 export function AnnouncementBar() {
-  const [items, setItems] = useState<string[]>(DEFAULT_HEADER_ANNOUNCEMENTS)
+  const [items, setItems] = useState<string[] | null>(null)
   const [mobileIndex, setMobileIndex] = useState(0)
 
   useEffect(() => {
@@ -32,7 +31,7 @@ export function AnnouncementBar() {
         setItems(next)
         setMobileIndex(0)
       } catch {
-        if (!cancelled) setItems(DEFAULT_HEADER_ANNOUNCEMENTS)
+        if (!cancelled) setItems([])
       }
     }
     void load()
@@ -45,14 +44,14 @@ export function AnnouncementBar() {
   }, [])
 
   useEffect(() => {
-    if (items.length <= 1) return
+    if (!items || items.length <= 1) return
     const timer = window.setInterval(() => {
       setMobileIndex((i) => (i + 1) % items.length)
     }, 4500)
     return () => window.clearInterval(timer)
-  }, [items.length])
+  }, [items])
 
-  if (items.length === 0) return null
+  if (items === null || items.length === 0) return null
 
   const mobileText = items[mobileIndex] ?? items[0]
   const MobileIcon = ICONS[mobileIndex % ICONS.length]
