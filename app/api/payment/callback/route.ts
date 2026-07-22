@@ -1,6 +1,7 @@
 import { after } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { verifyPaytrCallback } from "@/lib/paytr"
+import { getPaytrConfig } from "@/lib/paytrSettings"
 import { OrderStatus, PaymentStatus } from "@/generated/prisma/client"
 import { orderPaymentConfirmedEmailContent } from "@/lib/emails/orderPaymentConfirmed"
 import { dispatchTransactionalEmail } from "@/lib/email/dispatch"
@@ -42,7 +43,9 @@ export async function POST(req: Request) {
       return new Response("PAYTR: missing params", { status: 400 })
     }
 
-    const isValid = verifyPaytrCallback({
+    const paytrConfig = await getPaytrConfig(prisma)
+
+    const isValid = verifyPaytrCallback(paytrConfig, {
       merchant_oid: params.merchant_oid,
       status: params.status,
       total_amount: params.total_amount,

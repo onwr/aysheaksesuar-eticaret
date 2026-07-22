@@ -1,4 +1,6 @@
 import crypto from "crypto"
+import type { PaytrCredentials } from "@/lib/paytrSettings"
+import { DEFAULT_SITE_URL } from "@/lib/siteUrl"
 
 export interface PaytrTokenParams {
   merchantOid: string
@@ -16,13 +18,6 @@ export interface PaytrTokenParams {
   currency?: string
 }
 
-const MERCHANT_ID = process.env.PAYTR_MERCHANT_ID || ""
-const MERCHANT_KEY = process.env.PAYTR_MERCHANT_KEY || ""
-const MERCHANT_SALT = process.env.PAYTR_MERCHANT_SALT || ""
-const TEST_MODE = process.env.PAYTR_TEST_MODE === "1" ? 1 : 0
-
-import { DEFAULT_SITE_URL } from "@/lib/siteUrl"
-
 function getSiteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || DEFAULT_SITE_URL
 }
@@ -38,7 +33,9 @@ function safeCompare(a: string, b: string) {
   return crypto.timingSafeEqual(aBuffer, bBuffer)
 }
 
-export async function getPaytrToken(params: PaytrTokenParams) {
+export async function getPaytrToken(credentials: PaytrCredentials, params: PaytrTokenParams) {
+  const { merchantId, merchantKey, merchantSalt, testMode: testModeBool } = credentials
+
   const {
     merchantOid,
     email,
@@ -49,14 +46,14 @@ export async function getPaytrToken(params: PaytrTokenParams) {
     userPhone,
     userIp,
     debugOn = 1,
-    testMode = TEST_MODE,
+    testMode = testModeBool ? 1 : 0,
     noInstallment = 0,
     maxInstallment = 0,
     currency = "TL",
   } = params
 
-  if (!MERCHANT_ID || !MERCHANT_KEY || !MERCHANT_SALT) {
-    throw new Error("PayTR env bilgileri eksik.")
+  if (!merchantId || !merchantKey || !merchantSalt) {
+    throw new Error("PayTR bilgileri eksik. Admin panelinden veya ortam değişkenlerinden yapılandırın.")
   }
 
   const siteUrl = getSiteUrl()
@@ -74,7 +71,7 @@ export async function getPaytrToken(params: PaytrTokenParams) {
   const userBasketBase64 = Buffer.from(JSON.stringify(userBasket)).toString("base64")
 
   const hashStr =
-    MERCHANT_ID +
+    merchantId +
     userIp +
     merchantOid +
     email +
@@ -86,12 +83,12 @@ export async function getPaytrToken(params: PaytrTokenParams) {
     testMode
 
   const paytrToken = crypto
-    .createHmac("sha256", MERCHANT_KEY)
-    .update(hashStr + MERCHANT_SALT)
+    .createHmac("sha256", merchantKey)
+    .update(hashStr + merchantSalt)
     .digest("base64")
 
   const formData = new URLSearchParams({
-    merchant_id: MERCHANT_ID,
+    merchant_id: merchantId,
     user_ip: userIp,
     merchant_oid: merchantOid,
     email,
@@ -145,15 +142,19 @@ export async function getPaytrToken(params: PaytrTokenParams) {
   throw new Error(resJson.reason || "PayTR token alınamadı.")
 }
 
-export function verifyPaytrCallback(params: {
-  merchant_oid: string
-  status: string
-  total_amount: string
-  hash: string
-}) {
+export function verifyPaytrCallback(
+  credentials: PaytrCredentials,
+  params: {
+    merchant_oid: string
+    status: string
+    total_amount: string
+    hash: string
+  }
+) {
+  const { merchantKey, merchantSalt } = credentials
   const { merchant_oid, status, total_amount, hash } = params
 
-  if (!MERCHANT_KEY || !MERCHANT_SALT) {
+  if (!merchantKey || !merchantSalt) {
     return false
   }
 
@@ -161,10 +162,10 @@ export function verifyPaytrCallback(params: {
     return false
   }
 
-  const hashStr = merchant_oid + MERCHANT_SALT + status + total_amount
+  const hashStr = merchant_oid + merchantSalt + status + total_amount
 
   const computedHash = crypto
-    .createHmac("sha256", MERCHANT_KEY)
+    .createHmac("sha256", merchantKey)
     .update(hashStr)
     .digest("base64")
 

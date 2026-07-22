@@ -15,15 +15,12 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import { FALLBACK_HEADER_NAV, FALLBACK_SPARE_PARTS_NAV } from "@/lib/sparePartsConfig"
 import type { HeaderNavLink } from "@/components/home/DesktopNavigation"
-import { SearchBar } from "@/components/home/SearchBar"
 import { BRAND_INSTAGRAM } from "@/lib/brand"
 
 interface MobileNavigationProps {
   isOpen: boolean
   onClose: () => void
   navItems: HeaderNavLink[]
-  showMobileSearch: boolean
-  onToggleMobileSearch: () => void
 }
 
 const FALLBACK = FALLBACK_HEADER_NAV.length > 0 ? FALLBACK_HEADER_NAV : FALLBACK_SPARE_PARTS_NAV
@@ -50,8 +47,6 @@ export function MobileNavigation({
   isOpen,
   onClose,
   navItems,
-  showMobileSearch,
-  onToggleMobileSearch,
 }: MobileNavigationProps) {
   const displayItems = toDisplayItems(navItems)
   const [expandedId, setExpandedId] = useState<number | null>(null)
@@ -74,12 +69,6 @@ export function MobileNavigation({
       window.removeEventListener("keydown", onKey)
     }
   }, [isOpen, onClose])
-
-  const mobileSearch = showMobileSearch ? (
-    <div className="fixed inset-x-0 top-0 z-[9997] border-b border-brand-border bg-white px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] shadow-md md:hidden">
-      <SearchBar onNavigate={onToggleMobileSearch} />
-    </div>
-  ) : null
 
   const mobileMenu = (
     <AnimatePresence>
@@ -207,12 +196,7 @@ export function MobileNavigation({
 
   if (!mounted) return null
 
-  return (
-    <>
-      {mobileSearch && createPortal(mobileSearch, document.body)}
-      {createPortal(mobileMenu, document.body)}
-    </>
-  )
+  return createPortal(mobileMenu, document.body)
 }
 
 export function MobileMenuButton({ onClick, isOpen }: { onClick: () => void; isOpen: boolean }) {

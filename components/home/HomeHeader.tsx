@@ -8,6 +8,7 @@ import { AnnouncementBar } from "@/components/home/AnnouncementBar"
 import { SearchBar } from "@/components/home/SearchBar"
 import { DesktopNavigation, type HeaderNavLink } from "@/components/home/DesktopNavigation"
 import { MobileNavigation, MobileMenuButton } from "@/components/home/MobileNavigation"
+import { MobileSearchModal } from "@/components/home/MobileSearchModal"
 import { HeaderAuthNav } from "@/components/home/HeaderAuthNav"
 import { HeaderCartCount } from "@/components/home/HeaderCartCount"
 import { CartDrawer } from "@/components/cart/CartDrawer"
@@ -25,7 +26,7 @@ export function HomeHeader() {
   const [navLoading, setNavLoading] = useState(true)
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [showMobileSearch, setShowMobileSearch] = useState(false)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const [appearance, setAppearance] = useState<HeaderAppearance>(HEADER_APPEARANCE_FALLBACK)
 
   useEffect(() => {
@@ -86,7 +87,7 @@ export function HomeHeader() {
     <>
       <div
         className={`sticky top-0 w-full overflow-visible ${
-          mobileMenuOpen || showMobileSearch ? "z-[10001]" : "z-50"
+          mobileMenuOpen || mobileSearchOpen ? "z-[10001]" : "z-50"
         }`}
       >
         <AnnouncementBar />
@@ -130,7 +131,10 @@ export function HomeHeader() {
 
                 <div className="ml-auto flex shrink-0 items-center gap-2 md:gap-3">
                   <HeaderIcons
-                    onToggleMobileSearch={() => setShowMobileSearch((v) => !v)}
+                    onOpenMobileSearch={() => {
+                      setMobileMenuOpen(false)
+                      setMobileSearchOpen(true)
+                    }}
                     onOpenCart={() => setIsCartOpen(true)}
                   />
                 </div>
@@ -161,7 +165,10 @@ export function HomeHeader() {
 
                 <div className="ml-auto flex min-w-0 shrink-0 items-center gap-2 justify-self-end md:ml-0 md:gap-3">
                   <HeaderIcons
-                    onToggleMobileSearch={() => setShowMobileSearch((v) => !v)}
+                    onOpenMobileSearch={() => {
+                      setMobileMenuOpen(false)
+                      setMobileSearchOpen(true)
+                    }}
                     onOpenCart={() => setIsCartOpen(true)}
                   />
                 </div>
@@ -173,9 +180,9 @@ export function HomeHeader() {
             isOpen={mobileMenuOpen}
             onClose={() => setMobileMenuOpen(false)}
             navItems={navItems}
-            showMobileSearch={showMobileSearch}
-            onToggleMobileSearch={() => setShowMobileSearch(false)}
           />
+
+          <MobileSearchModal isOpen={mobileSearchOpen} onClose={() => setMobileSearchOpen(false)} />
 
           <DesktopNavigation
             navItems={navItems}
@@ -194,17 +201,17 @@ export function HomeHeader() {
 }
 
 function HeaderIcons({
-  onToggleMobileSearch,
+  onOpenMobileSearch,
   onOpenCart,
 }: {
-  onToggleMobileSearch: () => void
+  onOpenMobileSearch: () => void
   onOpenCart: () => void
 }) {
   return (
     <>
       <button
         type="button"
-        onClick={onToggleMobileSearch}
+        onClick={onOpenMobileSearch}
         aria-label="Ara"
         className="flex h-10 w-10 items-center justify-center rounded-xl border border-brand-border text-brand-navy transition hover:border-brand-teal hover:text-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 md:hidden"
       >

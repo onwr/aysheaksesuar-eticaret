@@ -29,6 +29,7 @@ import {
   FaTimes,
   FaPhoneAlt,
   FaUniversity,
+  FaCreditCard,
   FaUndo,
   FaPalette,
 } from "react-icons/fa"
@@ -85,6 +86,7 @@ const NAV_SECTIONS_SYSTEM: { title: string; items: NavItem[] }[] = [
     items: [
       { label: "Kargo", href: "/admin/shipping", icon: <FaTruck /> },
       { label: "Havale / IBAN", href: "/admin/bank-transfer", icon: <FaUniversity /> },
+      { label: "PayTR", href: "/admin/paytr", icon: <FaCreditCard /> },
       { label: "Telefonla Sipariş", href: "/admin/phone-order", icon: <FaPhoneAlt /> },
       { label: "E-posta (SMTP)", href: "/admin/smtp", icon: <FaEnvelope /> },
       { label: "Bülten Aboneleri", href: "/admin/newsletter", icon: <FaEnvelope /> },

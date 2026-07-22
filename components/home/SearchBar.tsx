@@ -31,9 +31,18 @@ interface SearchBarProps {
   className?: string
   inputClassName?: string
   onNavigate?: () => void
+  /** Mobilde tam ekran arama modalında önerileri input altında listeler */
+  layout?: "dropdown" | "stacked"
+  autoFocus?: boolean
 }
 
-export function SearchBar({ className = "", inputClassName = "", onNavigate }: SearchBarProps) {
+export function SearchBar({
+  className = "",
+  inputClassName = "",
+  onNavigate,
+  layout = "dropdown",
+  autoFocus = false,
+}: SearchBarProps) {
   const router = useRouter()
   const [query, setQuery] = useState("")
   const [products, setProducts] = useState<SearchProduct[]>([])
@@ -71,6 +80,13 @@ export function SearchBar({ className = "", inputClassName = "", onNavigate }: S
     }, 280)
     return () => clearTimeout(t)
   }, [query])
+
+  useEffect(() => {
+    if (autoFocus) {
+      const t = window.setTimeout(() => inputRef.current?.focus(), 50)
+      return () => window.clearTimeout(t)
+    }
+  }, [autoFocus])
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -136,8 +152,120 @@ export function SearchBar({ className = "", inputClassName = "", onNavigate }: S
       navigateToActive()
     } else if (e.key === "Escape") {
       setShowSearch(false)
+      onNavigate?.()
     }
   }
+
+  const suggestionsContent = (
+    <>
+      {isSearchLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <div className="h-5 w-5 animate-spin rounded-full border-[2.5px] border-brand-border border-t-brand-gold" />
+          </div>
+        ) : totalItems > 0 ? (
+          <div>
+            {categories.length > 0 && (
+              <div className="border-b border-brand-border">
+                <p className="px-4 pt-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-brand-muted">
+                  Kategoriler
+                </p>
+                <ul>
+                  {categories.map((cat, i) => (
+                    <li key={cat.id} role="option" aria-selected={activeIndex === i}>
+                      <Link
+                        href={`/categories/${cat.slug}`}
+                        onClick={close}
+                        className={`group flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                          activeIndex === i ? "bg-brand-blush-soft" : "hover:bg-brand-page"
+                        }`}
+                      >
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-blush-soft text-brand-gold">
+                          <FaTag className="h-3.5 w-3.5" />
+                        </span>
+                        <span className="flex-1 text-[13px] font-medium text-brand-text group-hover:text-brand-gold">
+                          {cat.name}
+                        </span>
+                        <FaChevronRight className="h-3 w-3 text-brand-border group-hover:text-brand-gold" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {products.length > 0 && (
+              <div>
+                <p className="px-4 pt-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-brand-muted">
+                  Ürünler
+                </p>
+                <ul>
+                  {products.map((product, pi) => {
+                    const idx = categories.length + pi
+                    const price =
+                      product.pricing?.current ??
+                      Number(product.variants[0]?.price ?? product.basePrice).toFixed(2)
+                    const oldPrice = product.pricing?.old
+                    return (
+                      <li key={product.id} role="option" aria-selected={activeIndex === idx}>
+                        <Link
+                          href={`/products/${product.slug}`}
+                          onClick={close}
+                          className={`group flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                            activeIndex === idx ? "bg-brand-blush-soft" : "hover:bg-brand-page"
+                          }`}
+                        >
+                          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-brand-border bg-brand-blush-soft/40">
+                            <Image
+                              src={product.images[0]?.url || "/logo.png"}
+                              alt={product.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[13px] font-medium text-brand-text group-hover:text-brand-gold">
+                              {product.name}
+                            </p>
+                            {product.category && (
+                              <p className="truncate text-[11px] text-brand-muted">{product.category.name}</p>
+                            )}
+                            <div className="mt-0.5 flex items-center gap-2">
+                              <p className="text-sm font-semibold text-brand-navy">₺{price}</p>
+                              {oldPrice && (
+                                <p className="text-[11px] text-brand-muted line-through">₺{oldPrice}</p>
+                              )}
+                            </div>
+                          </div>
+                          <FaChevronRight className="h-3 w-3 shrink-0 text-brand-border group-hover:text-brand-gold" />
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            )}
+            <div
+              className={`border-t border-brand-border bg-white px-4 py-2.5 ${layout === "stacked" ? "" : "sticky bottom-0"}`}
+            >
+              <Link
+                href={`/search?q=${encodeURIComponent(query)}`}
+                onClick={close}
+                className="flex items-center justify-between text-[12px] font-semibold text-brand-gold hover:text-brand-navy"
+              >
+                <span>&quot;{query}&quot; için tüm sonuçlar</span>
+                <FaChevronRight className="h-3 w-3" />
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="py-8 text-center">
+            <p className="text-sm font-medium text-brand-muted">
+              &quot;{query}&quot; için sonuç bulunamadı
+            </p>
+            <p className="mt-1 text-xs text-brand-muted/70">Farklı bir arama yapmayı deneyin</p>
+          </div>
+        )}
+    </>
+  )
 
   return (
     <div className={`relative z-[100] min-w-0 ${className}`} ref={searchRef}>
@@ -195,116 +323,17 @@ export function SearchBar({ className = "", inputClassName = "", onNavigate }: S
           <motion.div
             id="search-suggestions"
             role="listbox"
-            initial={{ opacity: 0, y: 6, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.98 }}
+            initial={layout === "dropdown" ? { opacity: 0, y: 6, scale: 0.98 } : false}
+            animate={layout === "dropdown" ? { opacity: 1, y: 0, scale: 1 } : undefined}
+            exit={layout === "dropdown" ? { opacity: 0, y: 4, scale: 0.98 } : undefined}
             transition={{ duration: 0.18 }}
-            className="absolute left-0 right-0 top-[calc(100%+8px)] z-[110] max-h-[min(70vh,420px)] overflow-y-auto rounded-2xl border border-brand-border bg-white shadow-[0_16px_48px_rgba(35,32,32,0.12)]"
+            className={
+              layout === "stacked"
+                ? "mt-3 max-h-[min(65vh,480px)] overflow-y-auto rounded-xl border border-brand-border bg-brand-page"
+                : "absolute left-0 right-0 top-[calc(100%+8px)] z-[110] max-h-[min(70vh,420px)] overflow-y-auto rounded-2xl border border-brand-border bg-white shadow-[0_16px_48px_rgba(35,32,32,0.12)]"
+            }
           >
-            {isSearchLoading ? (
-              <div className="flex items-center justify-center py-10">
-                <div className="h-5 w-5 animate-spin rounded-full border-[2.5px] border-brand-border border-t-brand-gold" />
-              </div>
-            ) : totalItems > 0 ? (
-              <div>
-                {categories.length > 0 && (
-                  <div className="border-b border-brand-border">
-                    <p className="px-4 pt-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-brand-muted">
-                      Kategoriler
-                    </p>
-                    <ul>
-                      {categories.map((cat, i) => (
-                        <li key={cat.id} role="option" aria-selected={activeIndex === i}>
-                          <Link
-                            href={`/categories/${cat.slug}`}
-                            onClick={close}
-                            className={`group flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                              activeIndex === i ? "bg-brand-blush-soft" : "hover:bg-brand-page"
-                            }`}
-                          >
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-blush-soft text-brand-gold">
-                              <FaTag className="h-3.5 w-3.5" />
-                            </span>
-                            <span className="flex-1 text-[13px] font-medium text-brand-text group-hover:text-brand-gold">
-                              {cat.name}
-                            </span>
-                            <FaChevronRight className="h-3 w-3 text-brand-border group-hover:text-brand-gold" />
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {products.length > 0 && (
-                  <div>
-                    <p className="px-4 pt-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-brand-muted">
-                      Ürünler
-                    </p>
-                    <ul>
-                      {products.map((product, pi) => {
-                        const idx = categories.length + pi
-                        const price =
-                          product.pricing?.current ??
-                          Number(product.variants[0]?.price ?? product.basePrice).toFixed(2)
-                        const oldPrice = product.pricing?.old
-                        return (
-                          <li key={product.id} role="option" aria-selected={activeIndex === idx}>
-                            <Link
-                              href={`/products/${product.slug}`}
-                              onClick={close}
-                              className={`group flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                                activeIndex === idx ? "bg-brand-blush-soft" : "hover:bg-brand-page"
-                              }`}
-                            >
-                              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-brand-border bg-brand-blush-soft/40">
-                                <Image
-                                  src={product.images[0]?.url || "/logo.png"}
-                                  alt={product.name}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="truncate text-[13px] font-medium text-brand-text group-hover:text-brand-gold">
-                                  {product.name}
-                                </p>
-                                {product.category && (
-                                  <p className="truncate text-[11px] text-brand-muted">{product.category.name}</p>
-                                )}
-                                <div className="mt-0.5 flex items-center gap-2">
-                                  <p className="text-sm font-semibold text-brand-navy">₺{price}</p>
-                                  {oldPrice && (
-                                    <p className="text-[11px] text-brand-muted line-through">₺{oldPrice}</p>
-                                  )}
-                                </div>
-                              </div>
-                              <FaChevronRight className="h-3 w-3 shrink-0 text-brand-border group-hover:text-brand-gold" />
-                            </Link>
-                          </li>
-                        )
-                      })}
-                    </ul>
-                  </div>
-                )}
-                <div className="sticky bottom-0 border-t border-brand-border bg-white px-4 py-2.5">
-                  <Link
-                    href={`/search?q=${encodeURIComponent(query)}`}
-                    onClick={close}
-                    className="flex items-center justify-between text-[12px] font-semibold text-brand-gold hover:text-brand-navy"
-                  >
-                    <span>&quot;{query}&quot; için tüm sonuçlar</span>
-                    <FaChevronRight className="h-3 w-3" />
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <div className="py-8 text-center">
-                <p className="text-sm font-medium text-brand-muted">
-                  &quot;{query}&quot; için sonuç bulunamadı
-                </p>
-                <p className="mt-1 text-xs text-brand-muted/70">Farklı bir arama yapmayı deneyin</p>
-              </div>
-            )}
+            {suggestionsContent}
           </motion.div>
         )}
       </AnimatePresence>

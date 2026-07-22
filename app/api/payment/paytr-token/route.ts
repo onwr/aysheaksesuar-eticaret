@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getPaytrToken } from "@/lib/paytr"
+import { getPaytrConfig } from "@/lib/paytrSettings"
 import { getClientIp } from "@/lib/checkoutRateLimit"
 import { toNumber } from "@/lib/cart"
 
@@ -48,7 +49,9 @@ export async function POST(req: Request) {
       item.quantity,
     ])
 
-    const { token } = await getPaytrToken({
+    const paytrConfig = await getPaytrConfig(prisma)
+
+    const { token } = await getPaytrToken(paytrConfig, {
       merchantOid: order.orderNo,
       email,
       paymentAmount: Math.round(toNumber(order.grandTotal) * 100),
