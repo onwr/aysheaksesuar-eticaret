@@ -119,21 +119,6 @@ export default async function HomePage() {
 
   const featuredProducts = featuredDb.map((p) => serializeProduct(p))
 
-  const instagramSourceProducts = [...newProductsDb, ...bestSellingDb, ...featuredDb]
-  const seenInstagramImages = new Set<string>()
-  const instagramPosts = instagramSourceProducts
-    .flatMap((p) => {
-      const cover = p.images.find((img) => img.isCover)?.url ?? p.images[0]?.url
-      if (!cover) return []
-      return [{ id: p.id, imageUrl: cover, href: `/products/${p.slug}`, alt: `${p.name} — AYŞE COŞKUN` }]
-    })
-    .filter((post) => {
-      if (seenInstagramImages.has(post.imageUrl)) return false
-      seenInstagramImages.add(post.imageUrl)
-      return true
-    })
-    .slice(0, 6)
-
   const faqs = faqsDb.map((f) => ({
     ...f,
     createdAt: f.createdAt.toISOString(),
@@ -242,7 +227,7 @@ export default async function HomePage() {
         ))}
       </React.Fragment>
     ),
-    instagram: <HomeInstagramSection key="instagram" posts={instagramPosts} />,
+    instagram: <HomeInstagramSection key="instagram" />,
     newsletter: <HomeNewsletter key="newsletter" />,
     faq: <HomeFaqSection key="faq" items={faqs} />,
   }
